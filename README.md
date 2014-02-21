@@ -19,8 +19,8 @@ out collectively by the network.
 What is Photon ?
 
 A clone of Blakecoin with a few changes.
-The standard block award of Photon is 32,768 BUT as the block chain grows the award will increase.
-The amount it increases is directly related to the current difficulty and height of the blockchain.
+The standard block award of Photon is 32,768 BUT as the block chain grows the award will decrease.
+The amount it decreases is directly related to the current difficulty and height of the blockchain.
 Miners will get 32,768 coins plus the square root of blockchain height multiplied by the current difficulty.
 Still as Photon's are plentiful in the universe the max money is set to 90,000,000,000
 That is 90 Billion Photons. Difficulty retargets every 20 blocks with a target of a new block to be produced every 3 minutes.
