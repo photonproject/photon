@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "init.h"
+#include "auxpow.h"
 #include "util.h"
 #include "sync.h"
 #include "ui_interface.h"
@@ -246,9 +247,12 @@ static const CRPCCommand vRPCCommands[] =
     { "verifymessage",          &verifymessage,          false,     false },
     { "getwork",                &getwork,                true,      false },
     { "getwork2",               &getwork2,               true,      false },
+    { "getworkaux",             &getworkaux,             true,      false },
     { "listaccounts",           &listaccounts,           false,     false },
     { "settxfee",               &settxfee,               false,     false },
     { "getblocktemplate",       &getblocktemplate,       true,      false },
+    { "getauxblock",            &getauxblock,            true,      false },
+    { "submitblock",            &submitblock,            false,     false },
     { "submitblock",            &submitblock,            false,     false },
     { "listsinceblock",         &listsinceblock,         false,     false },
     { "dumpprivkey",            &dumpprivkey,            true,      false },
@@ -889,7 +893,8 @@ void JSONRequest::parse(const Value& valRequest)
     if (valMethod.type() != str_type)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Method must be a string");
     strMethod = valMethod.get_str();
-    if (strMethod != "getwork" && strMethod != "getwork2" && strMethod != "getblocktemplate")
+    if (strMethod != "getwork" && strMethod != "getwork2" && strMethod != "getblocktemplate" &&
+            strMethod != "getworkaux" && strMethod != "getauxblock")
         printf("ThreadRPCServer method=%s\n", strMethod.c_str());
 
     // Parse params
@@ -1183,6 +1188,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "createrawtransaction"   && n > 1) ConvertTo<Object>(params[1]);
     if (strMethod == "signrawtransaction"     && n > 1) ConvertTo<Array>(params[1], true);
     if (strMethod == "signrawtransaction"     && n > 2) ConvertTo<Array>(params[2], true);
+    if (strMethod == "getworkaux"             && n > 2) ConvertTo<boost::int64_t>(params[2]);
     if (strMethod == "gettxout"               && n > 1) ConvertTo<boost::int64_t>(params[1]);
     if (strMethod == "gettxout"               && n > 2) ConvertTo<bool>(params[2]);
     if (strMethod == "lockunspent"            && n > 0) ConvertTo<bool>(params[0]);
