@@ -1176,7 +1176,7 @@ int ReadWriteAuxPow(Stream& s, const boost::shared_ptr<CAuxPow>& auxpow, int nTy
 enum
 {
     // primary version
-    BLOCK_VERSION_DEFAULT        = (1 << 0),
+    BLOCK_VERSION_DEFAULT        = (1 << 4),
 
     // modifiers
     BLOCK_VERSION_AUXPOW         = (1 << 8),
