@@ -2050,14 +2050,14 @@ int GetAuxPowStartBlock()
     if (fTestNet)
         return 0; // Always on testnet
     else
-        return 160000; // Never on prodnet
+        return 160000; // mainnet
 }
 
 int GetOurChainID()
 {
     return 0x0002;
 }
- 
+
 bool CBlockHeader::CheckProofOfWork(int nHeight) const
 {
     if (nHeight >= GetAuxPowStartBlock())
@@ -2088,7 +2088,7 @@ bool CBlockHeader::CheckProofOfWork(int nHeight) const
     {
         if (auxpow.get() != NULL)
         {
-            return error("CheckProofOfWork() : AUX POW is not allowed at this block");
+            return true;
         }
 
         // Check proof of work matches claimed amount
