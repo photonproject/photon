@@ -1191,10 +1191,9 @@ void MapPort(bool)
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strMainNetDNSSeed[][2] = {
-    {"photon.info", "photon.info"},
-	{"photon.org", "photon.org"},
-	{"photon.com", "photon.com"},
-    {NULL, NULL}
+    {"107.170.123.55", "107.170.123.55"},
+	{"162.243.101.139", "162.243.101.139"},
+	{NULL, NULL}
 };
 
 static const char *strTestNetDNSSeed[][2] = {
