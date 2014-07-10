@@ -18,6 +18,10 @@ CONFIG += thread
 #    BOOST_INCLUDE_PATH, BOOST_LIB_PATH, BDB_INCLUDE_PATH,
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
 
+LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)  
+LIBS += -lssl -lcrypto 
+windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
+
 BOOST_LIB_SUFFIX=-mgw46-mt-sd-1_55
 BOOST_INCLUDE_PATH=C:\deps\boost_1_55_0
 BOOST_LIB_PATH=C:\deps\boost_1_55_0\stage\lib
