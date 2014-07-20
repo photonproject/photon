@@ -1093,8 +1093,8 @@ uint256 static GetOrphanRoot(const CBlockHeader* pblock)
 static const int64 nGenesisBlockRewardCoin = COIN;
 static const int64 nBlockRewardStartCoin = COIN;
 
-static const int64 nTargetTimespan = 20 * 60; // 20 minutes
-static const int64 nTargetSpacing = 1 * 60; // 1 minute
+static const int64 nTargetTimespan = 10 * 60; // 20 minutes
+static const int64 nTargetSpacing = 2 * 60; // 1 minute
 static const int64 nInterval = nTargetTimespan / nTargetSpacing; // 20 blocks
 static const int64 nCumulativeDiffMovingAverageNIntervals = 3; // Average last hour of difficulty
 static const int64 nMinHeightForFullReward = 1440; // Minimum height the blockchain has to have to give full reward
@@ -1113,7 +1113,7 @@ int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, double 
     } else {
         // When difficulty increases, lower reward, when decreasing, extra reward
         if (deltaDiff > 0) {
-            subsidy = COIN / 20;
+            subsidy = COIN / 10;
         } else {
             subsidy = 2 * COIN;
         }
