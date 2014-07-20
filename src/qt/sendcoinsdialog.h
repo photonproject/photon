@@ -14,7 +14,7 @@ QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
 
-/** Dialog for sending photons */
+/** Dialog for sending UniversalMolecules */
 class SendCoinsDialog : public QDialog
 {
     Q_OBJECT

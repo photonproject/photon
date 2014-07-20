@@ -4,7 +4,7 @@
 #include <QString>
 #include <QAbstractListModel>
 
-/** Photon unit definitions. Encapsulates parsing and formatting
+/** UniversalMolecule unit definitions. Encapsulates parsing and formatting
    and serves as list model for drop-down selection boxes.
 */
 class BitcoinUnits: public QAbstractListModel
@@ -14,14 +14,14 @@ class BitcoinUnits: public QAbstractListModel
 public:
     explicit BitcoinUnits(QObject *parent);
 
-    /** Photon units.
+    /** UniversalMolecule units.
       @note Source: https://en.bitcoin.it/wiki/Units . Please add only sensible ones
      */
     enum Unit
     {
-        PHO,
-        mPHO,
-        uPHO
+        UMO,
+        mUMO,
+        uUMO
     };
 
     //! @name Static API

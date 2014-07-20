@@ -2,6 +2,7 @@
 // Copyright (c) 2009-2012 The Bitcoin developers
 // Copyright (c) 2013 The Blakecoin developers
 // Copyright (C) 2014 The Photon developers
+// Copyright (C) 2014 The UniversalMolecule developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,6 +16,7 @@
 #include "auxpow.h"
 #include "ui_interface.h"
 #include "checkqueue.h"
+#include "bitcoinrpc.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -35,8 +37,8 @@ CTxMemPool mempool;
 unsigned int nTransactionsUpdated = 0;
 
 map<uint256, CBlockIndex*> mapBlockIndex;
-uint256 hashGenesisBlock("0x000000e79a20d718a2f2d8b98161dc6700104a22d8e9be70e8ac361ee6664b9c");
-static const unsigned int timeGenesisBlock = 1392688072;
+uint256 hashGenesisBlock("0x00000059f24d9e85501bd3873fac0cd6e8a43fd8c20eee856082dbdcc09a8e64");
+static const unsigned int timeGenesisBlock = 1405307607;
 static CBigNum bnProofOfWorkLimit(~uint256(0) >> 24);
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -69,7 +71,7 @@ map<uint256, set<uint256> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "Photon Signed Message:\n";
+const string strMessageMagic = "UniversalMolecule Signed Message:\n";
 
 double dHashesPerSec = 0.0;
 int64 nHPSTimerStart = 0;
@@ -616,7 +618,7 @@ int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
         if (nBlockSize == 1)
         {
             // Transactions under 10K are free
-            // (about 4500 PHO if made of 50 PHO inputs)
+            // (about 4500 UMO if made of 50 UMO inputs) TODO: Is this right?
             if (nBytes < 10000)
                 nMinFee = 0;
         }
@@ -1088,38 +1090,56 @@ uint256 static GetOrphanRoot(const CBlockHeader* pblock)
     return pblock->GetHash();
 }
 
-static const int64 nGenesisBlockRewardCoin = 32768 * COIN;
-static const int64 nBlockRewardStartCoin = 32768 * COIN;
+static const int64 nGenesisBlockRewardCoin = COIN;
+static const int64 nBlockRewardStartCoin = COIN;
 
-static const int64 nTargetTimespan = 60 * 60; // 60 minutes
-static const int64 nTargetSpacing = 3 * 60; // 3 minutes
+static const int64 nTargetTimespan = 20 * 60; // 20 minutes
+static const int64 nTargetSpacing = 1 * 60; // 1 minute
 static const int64 nInterval = nTargetTimespan / nTargetSpacing; // 20 blocks
+static const int64 nCumulativeDiffMovingAverageNIntervals = 3; // Average last hour of difficulty
+static const int64 nMinHeightForFullReward = 1440; // Minimum height the blockchain has to have to give full reward
 
-int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits)
+int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, double deltaDiff)
 {
 
     if (nHeight == 0)
     {
         return nGenesisBlockRewardCoin;
     }
-    unsigned int basenBits = bnProofOfWorkLimit.GetCompact();
-    int nShift = int((basenBits >> 24) & 0xff) - int((nBits >> 24) & 0xff);
-    double dDiff =
-        (double)(basenBits & 0x007fffff) / (double)(nBits & 0x007fffff);
-    while (nShift > 0)
-    {
-        dDiff *= 256.0;
-        --nShift;
-    }
-    while (nShift < 0)
-    {
-        dDiff /= 256.0;
-        ++nShift;
-    }
-     int64 nSubsidy1 = int64(sqrt(dDiff * nHeight));
-     int64 nSubsidy = nSubsidy1 + nBlockRewardStartCoin;
+
+    int64 subsidy = 0;
+    if (nHeight <= nMinHeightForFullReward) {
+		subsidy = 1 * COIN / 1000;
+    } else {
+        // When difficulty increases, lower reward, when decreasing, extra reward
+        if (deltaDiff > 0) {
+            subsidy = COIN / 20;
+        } else {
+            subsidy = 2 * COIN;
+        }
+	}
     
-    return nSubsidy + nFees;
+    return subsidy + nFees;
+}
+
+double static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove, int64 nMoves)
+{
+    double cummDiff = 0.0;
+    int64 nDiffSamples = 0;
+    
+    CBlockIndex* pcurblockindex = FindBlockByHeight(baseHeight);
+    double baseDiff = GetDifficulty(pcurblockindex);
+    
+    for (int64 currentHeight=baseHeight - blockMove; currentHeight > 0; currentHeight -= blockMove) {
+        CBlockIndex* pblockindex = FindBlockByHeight(currentHeight);
+        
+        if (pblockindex != NULL) {
+            nDiffSamples++;
+            cummDiff += GetDifficulty(pblockindex);
+        }
+    }
+
+    return baseDiff - (cummDiff / nDiffSamples);
 }
 
 //
@@ -1200,14 +1220,9 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
     const CBlockIndex* nActualHeight = pindexLast;
     int pHeight = nActualHeight->nHeight;
     printf("  pHeight = %"PRI64d"  \n", pHeight);
-    int64 LimitUp = nTargetTimespan * 100 / 115; // up 15%
-    int64 LimitUp2 = nTargetTimespan * 100 / 103; // up 3%
+    int64 LimitUp = nTargetTimespan * 100 / 103; // up 3%
 
-    if (nActualTimespan < nTargetTimespan/4 && pHeight >= 3500)
-       {
-        nActualTimespan = LimitUp2;
-       }
-    if (nActualTimespan < LimitUp && pHeight <= 3499)
+    if (nActualTimespan < LimitUp)
        {
         nActualTimespan = LimitUp;
        }
@@ -1658,9 +1673,10 @@ void ThreadScriptCheck() {
 bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsViewCache &view, bool fJustCheck)
 {
     // Check it again in case a previous version let a bad block in
-    if (!CheckBlock(state, pindex->nHeight, !fJustCheck, !fJustCheck))
+    if (!CheckBlock(state, pindex->nHeight, !fJustCheck, !fJustCheck)) {
         return false;
-
+    }
+        
     // verify that the view's current state corresponds to the previous block
     assert(pindex->pprev == view.GetBestBlock());
 
@@ -1669,6 +1685,7 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
     if (GetHash() == hashGenesisBlock) {
         view.SetBestBlock(pindex);
         pindexGenesisBlock = pindex;
+        printf("Genesis checked");
         return true;
     }
 
@@ -1760,8 +1777,10 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
     if (fBenchmark)
         printf("- Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin)\n", (unsigned)vtx.size(), 0.001 * nTime, 0.001 * nTime / vtx.size(), nInputs <= 1 ? 0 : 0.001 * nTime / (nInputs-1));
 
-    if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees, pindex->nBits))
-        return state.DoS(100, error("ConnectBlock() : coinbase pays too much (actual=%"PRI64d" vs limit=%"PRI64d")", vtx[0].GetValueOut(), GetBlockValue(pindex->nHeight, nFees, pindex->nBits)));
+    double diffDelta = CummulativeDifficultyMovingAverage(pindex->nHeight, nInterval, nCumulativeDiffMovingAverageNIntervals);
+    
+    if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees, pindex->nBits, diffDelta))
+        return state.DoS(100, error("ConnectBlock() : coinbase pays too much (actual=%"PRI64d" vs limit=%"PRI64d")", vtx[0].GetValueOut(), GetBlockValue(pindex->nHeight, nFees, pindex->nBits, diffDelta)));
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -2050,12 +2069,12 @@ int GetAuxPowStartBlock()
     if (fTestNet)
         return 0; // Always on testnet
     else
-        return 160000; // mainnet
+        return 160000; // mainnet TODO: Check with BD747 this
 }
 
 int GetOurChainID()
 {
-    return 0x0002;
+    return 0x000F;
 }
 
 bool CBlockHeader::CheckProofOfWork(int nHeight) const
@@ -2840,9 +2859,9 @@ bool LoadBlockIndex()
     {
         pchMessageStart[0] = 0x0b;
         pchMessageStart[1] = 0x11;
-        pchMessageStart[2] = 0x09;
-        pchMessageStart[3] = 0x08;
-        hashGenesisBlock = uint256("0x00000052d978f26d698e0c4dbce9f8139a69f2fbda37715149146776aeb70d5b");
+        pchMessageStart[2] = 0x39;
+        pchMessageStart[3] = 0x38;
+        hashGenesisBlock = uint256("00000059f24d9e85501bd3873fac0cd6e8a43fd8c20eee856082dbdcc09a8e64");
     }
 
     //
@@ -2868,12 +2887,7 @@ bool InitBlockIndex() {
     // Only add the genesis block if not reindexing (in which case we reuse the one already on disk)
     if (!fReindex) {
         // Genesis Block:
-/*
-
-*/
-
-        // Genesis block
-        const char* pszTimestamp = "US forces target leading al-Shabaab militant in Somalian coastal raid";
+        const char* pszTimestamp = "LaPatilla 13/07/2014 Gobierno argentino habia recibido denuncias sobre mega-guiso";
         CTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
@@ -2887,24 +2901,28 @@ bool InitBlockIndex() {
         block.nVersion = 112;
         block.nTime    = timeGenesisBlock;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
-        block.nNonce   = 5992999;
+        block.nNonce   = 79480397;
 
         if (fTestNet)
         {
-            block.nTime    = 1392351202;
-            block.nNonce   = 4335147;
+            block.nTime    = 1405307607;
+            block.nNonce   = 79480397;
         }
 
         //// debug print
         uint256 hash = block.GetHash();
+        while (hash > bnProofOfWorkLimit.getuint256()){
+            if (++block.nNonce==0) break;
+            hash = block.GetHash();
+        }
+    
         printf("%s\n", hash.ToString().c_str());
         printf("%s\n", hashGenesisBlock.ToString().c_str());
         printf("%s\n", block.hashMerkleRoot.ToString().c_str());
+        
+        
         block.print();
-        assert(block.hashMerkleRoot == uint256("0x251e462b7d8b2e92e74651186fbbc66ac715cf9c160212efb02642232207112d"));
-        
-
-        
+        assert(block.hashMerkleRoot == uint256("0x11ad2754baede90db86d491ada7030551bd3f0d72a7486ef57fe8fcf44c3b6b4"));
         
         //gen
         assert(hash == hashGenesisBlock);
@@ -3177,7 +3195,7 @@ bool static AlreadyHave(const CInv& inv)
 // The message start string is designed to be unlikely to occur in normal data.
 // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 // a large 4-byte int at any alignment.
-unsigned char pchMessageStart[4] = { 0xf9, 0xbc, 0xb4, 0xd2 };
+unsigned char pchMessageStart[4] = { 0xfa, 0xd3, 0xe7, 0xf4 };
 
 
 void static ProcessGetData(CNode* pfrom)
@@ -4537,7 +4555,9 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         nLastBlockSize = nBlockSize;
         printf("CreateNewBlock(): total size %"PRI64u"\n", nBlockSize);
 
-        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits);
+        double diffDelta = CummulativeDifficultyMovingAverage(pindexPrev->nHeight+1, nInterval, nCumulativeDiffMovingAverageNIntervals);
+        
+        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits, diffDelta);
         pblocktemplate->vTxFees[0] = -nFees;
 
         // Fill in header
@@ -4547,7 +4567,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         pblock->nNonce         = 0;
 
         // Calculate nVvalue dependet nBits
-        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits);
+        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits, diffDelta);
         pblocktemplate->vTxFees[0] = -nFees;
 
         pblock->vtx[0].vin[0].scriptSig = CScript() << OP_0 << OP_0;
@@ -4646,7 +4666,7 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
             return error("AUX POW parent hash %s is not under target %s", auxpow->GetParentBlockHash().GetHex().c_str(), hashTarget.GetHex().c_str());
 
         //// debug print
-        printf("PhotonMiner:\n");
+        printf("UniversalMoleculeMiner:\n");
         printf("AUX proof-of-work found  \n     our hash: %s   \n  parent hash: %s  \n       target: %s\n",
                 hash.GetHex().c_str(),
                 auxpow->GetParentBlockHash().GetHex().c_str(),
@@ -4658,7 +4678,7 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
             return false;
 
         //// debug print
-        printf("PhotonMiner:\n");
+        printf("UniversalMoleculeMiner:\n");
         printf("proof-of-work found  \n  hash: %s  \ntarget: %s\n", hash.GetHex().c_str(), hashTarget.GetHex().c_str());
     }
  
@@ -4670,7 +4690,7 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
     {
         LOCK(cs_main);
         if (pblock->hashPrevBlock != hashBestChain)
-            return error("PhotonMiner : generated block is stale");
+            return error("UniversalMoleculeMiner : generated block is stale");
 
         // Remove key from key pool
         reservekey.KeepKey();
@@ -4684,7 +4704,7 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
         // Process this block the same as if we had received it from another node
         CValidationState state;
         if (!ProcessBlock(state, NULL, pblock))
-            return error("PhotonMiner : ProcessBlock, block not accepted");
+            return error("UniversalMoleculeMiner : ProcessBlock, block not accepted");
     }
 
     return true;
@@ -4692,9 +4712,9 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 
 void static BitcoinMiner(CWallet *pwallet)
 {
-    printf("PhotonMiner started\n");
+    printf("UniversalMoleculeMiner started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
-    RenameThread("photon-miner");
+    RenameThread("universalmolecule-miner");
 
     // Each thread has its own key and counter
     CReserveKey reservekey(pwallet);
@@ -4716,7 +4736,7 @@ void static BitcoinMiner(CWallet *pwallet)
         CBlock *pblock = &pblocktemplate->block;
         IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
 
-        printf("Running PhotonMiner with %"PRIszu" transactions in block (%u bytes)\n", pblock->vtx.size(),
+        printf("Running UniversalMoleculeMiner with %"PRIszu" transactions in block (%u bytes)\n", pblock->vtx.size(),
                ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
 
         //
@@ -4819,7 +4839,7 @@ void static BitcoinMiner(CWallet *pwallet)
     } }
     catch (boost::thread_interrupted)
     {
-        printf("PhotonMiner terminated\n");
+        printf("UniversalMoleculeMiner terminated\n");
         throw;
     }
 }

@@ -24,11 +24,11 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(QWidget *parent) :
 
 #if (QT_VERSION >= 0x040700)
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
-    ui->addressIn_SM->setPlaceholderText(tr("Enter a Photon address (e.g. BghN8btKtp3HrXgZJwyBakUzALLZ34nA4J)"));
+    ui->addressIn_SM->setPlaceholderText(tr("Enter a UniversalMolecule address (e.g. ughN8btKtp3HrXgZJwyBakUzALLZ34nA4J)"));
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
 
-    ui->addressIn_VM->setPlaceholderText(tr("Enter a Photon address (e.g. BghN8btKtp3HrXgZJwyBakUzALLZ34nA4J)"));
-    ui->signatureIn_VM->setPlaceholderText(tr("Enter Photon signature"));
+    ui->addressIn_VM->setPlaceholderText(tr("Enter a UniversalMolecule address (e.g. ughN8btKtp3HrXgZJwyBakUzALLZ34nA4J)"));
+    ui->signatureIn_VM->setPlaceholderText(tr("Enter UniversalMolecule signature"));
 #endif
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);

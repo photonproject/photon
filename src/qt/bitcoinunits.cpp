@@ -11,9 +11,9 @@ BitcoinUnits::BitcoinUnits(QObject *parent):
 QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
 {
     QList<BitcoinUnits::Unit> unitlist;
-    unitlist.append(PHO);
-    unitlist.append(mPHO);
-    unitlist.append(uPHO);
+    unitlist.append(UMO);
+    unitlist.append(mUMO);
+    unitlist.append(uUMO);
     return unitlist;
 }
 
@@ -21,9 +21,9 @@ bool BitcoinUnits::valid(int unit)
 {
     switch(unit)
     {
-    case PHO:
-    case mPHO:
-    case uPHO:
+    case UMO:
+    case mUMO:
+    case uUMO:
         return true;
     default:
         return false;
@@ -34,9 +34,9 @@ QString BitcoinUnits::name(int unit)
 {
     switch(unit)
     {
-    case PHO: return QString("PHO");
-    case mPHO: return QString("mPHO");
-    case uPHO: return QString::fromUtf8("μPHO");
+    case UMO: return QString("UMO");
+    case mUMO: return QString("mUMO");
+    case uUMO: return QString::fromUtf8("μUMO");
     default: return QString("???");
     }
 }
@@ -45,9 +45,9 @@ QString BitcoinUnits::description(int unit)
 {
     switch(unit)
     {
-    case PHO: return QString("Photons");
-    case mPHO: return QString("Milli-Photons (1 / 1,000)");
-    case uPHO: return QString("Micro-Photons (1 / 1,000,000)");
+    case UMO: return QString("UniversalMolecule");
+    case mUMO: return QString("Milli-UniversalMolecule (1 / 1,000)");
+    case uUMO: return QString("Micro-UniversalMolecule (1 / 1,000,000)");
     default: return QString("???");
     }
 }
@@ -56,9 +56,9 @@ qint64 BitcoinUnits::factor(int unit)
 {
     switch(unit)
     {
-    case PHO:  return 100000000;
-    case mPHO: return 100000;
-    case uPHO: return 100;
+    case UMO:  return 100000000;
+    case mUMO: return 100000;
+    case uUMO: return 100;
     default:   return 100000000;
     }
 }
@@ -67,9 +67,9 @@ int BitcoinUnits::amountDigits(int unit)
 {
     switch(unit)
     {
-    case PHO: return 8; // 21,000,000 (# digits, without commas)
-    case mPHO: return 11; // 21,000,000,000
-    case uPHO: return 14; // 21,000,000,000,000
+    case UMO: return 8; // 21,000,000 (# digits, without commas)
+    case mUMO: return 11; // 21,000,000,000
+    case uUMO: return 14; // 21,000,000,000,000
     default: return 0;
     }
 }
@@ -78,9 +78,9 @@ int BitcoinUnits::decimals(int unit)
 {
     switch(unit)
     {
-    case PHO: return 8;
-    case mPHO: return 5;
-    case uPHO: return 2;
+    case UMO: return 8;
+    case mUMO: return 5;
+    case uUMO: return 2;
     default: return 0;
     }
 }

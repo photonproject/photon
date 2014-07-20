@@ -79,8 +79,8 @@ void setupAmountWidget(QLineEdit *widget, QWidget *parent)
 
 bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 {
-    // return if URI is not valid or is no photon URI
-    if(!uri.isValid() || uri.scheme() != QString("photon"))
+    // return if URI is not valid or is no UniversalMolecule URI
+    if(!uri.isValid() || uri.scheme() != QString("universalmolecule"))
         return false;
 
     SendCoinsRecipient rv;
@@ -105,7 +105,7 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!BitcoinUnits::parse(BitcoinUnits::PHO, i->second, &rv.amount))
+                if(!BitcoinUnits::parse(BitcoinUnits::UMO, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -125,13 +125,13 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 
 bool parseBitcoinURI(QString uri, SendCoinsRecipient *out)
 {
-    // Convert photon:// to photon:
+    // Convert universalmolecule:// to universalmolecule:
     //
-    //    Cannot handle this later, because photon:// will cause Qt to see the part after // as host,
+    //    Cannot handle this later, because universalmolecule:// will cause Qt to see the part after // as host,
     //    which will lower-case it (and thus invalidate the address).
-    if(uri.startsWith("photon://"))
+    if(uri.startsWith("universalmolecule://"))
     {
-        uri.replace(0, 10, "photon:");
+        uri.replace(0, 10, "universalmolecule:");
     }
     QUrl uriInstance(uri);
     return parseBitcoinURI(uriInstance, out);
@@ -277,12 +277,12 @@ bool ToolTipToRichTextFilter::eventFilter(QObject *obj, QEvent *evt)
 #ifdef WIN32
 boost::filesystem::path static StartupShortcutPath()
 {
-    return GetSpecialFolderPath(CSIDL_STARTUP) / "Photon.lnk";
+    return GetSpecialFolderPath(CSIDL_STARTUP) / "UniversalMolecule.lnk";
 }
 
 bool GetStartOnSystemStartup()
 {
-    // check for Photon.lnk
+    // check for UniversalMolecule.lnk
     return boost::filesystem::exists(StartupShortcutPath());
 }
 
@@ -359,7 +359,7 @@ boost::filesystem::path static GetAutostartDir()
 
 boost::filesystem::path static GetAutostartFilePath()
 {
-    return GetAutostartDir() / "photon.desktop";
+    return GetAutostartDir() / "universalmolecule.desktop";
 }
 
 bool GetStartOnSystemStartup()
@@ -397,10 +397,10 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         boost::filesystem::ofstream optionFile(GetAutostartFilePath(), std::ios_base::out|std::ios_base::trunc);
         if (!optionFile.good())
             return false;
-        // Write a photon.desktop file to the autostart directory:
+        // Write a universalmolecule.desktop file to the autostart directory:
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
-        optionFile << "Name=Photon\n";
+        optionFile << "Name=UniversalMolecule\n";
         optionFile << "Exec=" << pszExePath << " -min\n";
         optionFile << "Terminal=false\n";
         optionFile << "Hidden=false\n";
@@ -421,10 +421,10 @@ bool SetStartOnSystemStartup(bool fAutoStart) { return false; }
 HelpMessageBox::HelpMessageBox(QWidget *parent) :
     QMessageBox(parent)
 {
-    header = tr("Photon-Qt") + " " + tr("version") + " " +
+    header = tr("UniversalMolecule-Qt") + " " + tr("version") + " " +
         QString::fromStdString(FormatFullVersion()) + "\n\n" +
         tr("Usage:") + "\n" +
-        "  photon-qt [" + tr("command-line options") + "]                     " + "\n";
+        "  universalmolecule-qt [" + tr("command-line options") + "]                     " + "\n";
 
     coreOptions = QString::fromStdString(HelpMessage());
 
@@ -433,7 +433,7 @@ HelpMessageBox::HelpMessageBox(QWidget *parent) :
         "  -min                   " + tr("Start minimized") + "\n" +
         "  -splash                " + tr("Show splash screen on startup (default: 1)") + "\n";
 
-    setWindowTitle(tr("Photon-Qt"));
+    setWindowTitle(tr("UniversalMolecule-Qt"));
     setTextFormat(Qt::PlainText);
     // setMinimumWidth is ignored for QMessageBox so put in non-breaking spaces to make it wider.
     setText(header + QString(QChar(0x2003)).repeated(50));

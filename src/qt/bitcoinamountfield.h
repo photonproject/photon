@@ -8,7 +8,7 @@ class QDoubleSpinBox;
 class QValueComboBox;
 QT_END_NAMESPACE
 
-/** Widget for entering photon amounts.
+/** Widget for entering universalmolecule amounts.
   */
 class BitcoinAmountField: public QWidget
 {

@@ -22,7 +22,7 @@ public:
     qint64 amount;
 };
 
-/** Interface to Photon wallet from Qt view code. */
+/** Interface to UniversalMolecule wallet from Qt view code. */
 class WalletModel : public QObject
 {
     Q_OBJECT

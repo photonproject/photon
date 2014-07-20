@@ -20,7 +20,7 @@ enum BlockSource {
     BLOCK_SOURCE_NETWORK
 };
 
-/** Model for Photon network client. */
+/** Model for UniversalMolecule network client. */
 class ClientModel : public QObject
 {
     Q_OBJECT

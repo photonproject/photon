@@ -1191,15 +1191,14 @@ void MapPort(bool)
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strMainNetDNSSeed[][2] = {
-    {"107.170.123.55", "107.170.123.55"},
-	{"162.243.101.139", "162.243.101.139"},
+    {"universalmolecule.co.ve", "universalmolecule.co.ve"},
+    {"seed.universalmolecule.co.ve", "seed.universalmolecule.co.ve"},
 	{NULL, NULL}
 };
 
 static const char *strTestNetDNSSeed[][2] = {
-    {"photon.info", "photon.info"},
-	{"photon.org", "server1.photon.org"},
-	{"photon.com", "photon.com"},
+    {"universalmolecule.co.ve", "universalmolecule.co.ve"},
+    {"testnet-seed.universalmolecule.co.ve", "testnet-seed.universalmolecule.co.ve"},
 	{NULL, NULL}
 };
 
@@ -1755,7 +1754,7 @@ bool BindListenPort(const CService &addrBind, string& strError)
     {
         int nErr = WSAGetLastError();
         if (nErr == WSAEADDRINUSE)
-            strError = strprintf(_("Unable to bind to %s on this computer. Photon is probably already running."), addrBind.ToString().c_str());
+            strError = strprintf(_("Unable to bind to %s on this computer. UniversalMolecule is probably already running."), addrBind.ToString().c_str());
         else
             strError = strprintf(_("Unable to bind to %s on this computer (bind returned error %d, %s)"), addrBind.ToString().c_str(), nErr, strerror(nErr));
         printf("%s\n", strError.c_str());

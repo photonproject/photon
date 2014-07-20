@@ -27,10 +27,10 @@ A clone of Blakecoin with a few changes. The standard block award of Photon is 3
 
 A clone of Photon with a few changes.
 
-* 0.001 UMO for the first 1440 blocks (1 day roughly), to allow everyone to get in.
-* 2 UMO from block 1441 onwards, without halving.
+* 0.0001 UMO for the first 1440 blocks (1 day roughly), to allow everyone to get in.
+* 2 UMO from block 1441 onwards, when difficulty is stable or goes down, 0.05 when difficulty trends upwards (3 hour moving average).
 * Target block time: 60 seconds
-* Difficulty retarget: each 5 blocks (~5 minutes) max 15% up and 30% down.
+* Difficulty retarget: each 20 blocks (~20 minutes) max 3% up.
 * Symbol: UMO
 * Maximum Coins: UMO 105,120,001.44
 * 120 Blocks Maturity for mined coins

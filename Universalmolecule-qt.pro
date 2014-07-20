@@ -1,6 +1,6 @@
 TEMPLATE = app
-TARGET = photon-qt
-macx:TARGET = "Photon-Qt"
+TARGET = universalmolecule-qt
+macx:TARGET = "UniversalMolecule-Qt"
 VERSION = 0.8.9
 INCLUDEPATH += src src/json src/qt
 QT += network
