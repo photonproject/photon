@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "UniversalMolecule QT Wallet"
-#define MyAppVersion "1.1"
+#define MyAppVersion "1.2"
 #define MyAppPublisher "UniversalMolecule Foundation"
 #define MyAppURL "http://www.universalmolecule.co.ve/"
 #define MyAppExeName "universalmolecule-qt.exe"
@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile=.\license.txt
-OutputBaseFilename=universalmolecule-setup
+OutputBaseFilename=universalmolecule-{#MyAppVersion}-setup
 Compression=lzma
 SolidCompression=yes
 

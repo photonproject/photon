@@ -13,6 +13,9 @@
 #include <QMessageBox>
 #include <QTextDocument>
 #include <QScrollBar>
+#include <QMainWindow>
+#include <QApplication>
+
 
 SendCoinsDialog::SendCoinsDialog(QWidget *parent) :
     QDialog(parent),
@@ -298,6 +301,14 @@ bool SendCoinsDialog::handleURI(const QString &uri)
         if (!address.IsValid())
             return false;
         pasteEntry(rv);
+        
+        QMainWindow *win = (QMainWindow *) QApplication::activeWindow();
+        if (win != NULL) {
+            win->raise();
+            win->show();
+            win->activateWindow();
+        }
+        
         return true;
     }
 

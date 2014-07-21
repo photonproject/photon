@@ -1057,10 +1057,22 @@ CBlockIndex* FindBlockByHeight(int nHeight)
     if (pblockindexFBBHLast && abs(nHeight - pblockindex->nHeight) > abs(nHeight - pblockindexFBBHLast->nHeight))
         pblockindex = pblockindexFBBHLast;
     while (pblockindex->nHeight > nHeight)
-        pblockindex = pblockindex->pprev;
+        if (pblockindex->pprev != NULL) {
+            pblockindex = pblockindex->pprev;
+        } else {
+            pblockindex = NULL;
+            break;
+        }
     while (pblockindex->nHeight < nHeight)
-        pblockindex = pblockindex->pnext;
-    pblockindexFBBHLast = pblockindex;
+        if (pblockindex->pnext != NULL) {
+            pblockindex = pblockindex->pnext;
+        } else {
+            pblockindex = NULL;
+            break;
+        }
+    if (pblockindex != NULL) {
+        pblockindexFBBHLast = pblockindex;
+    }
     return pblockindex;
 }
 
@@ -1093,9 +1105,10 @@ uint256 static GetOrphanRoot(const CBlockHeader* pblock)
 static const int64 nGenesisBlockRewardCoin = COIN;
 static const int64 nBlockRewardStartCoin = COIN;
 
-static const int64 nTargetTimespan = 10 * 60; // 20 minutes
-static const int64 nTargetSpacing = 2 * 60; // 1 minute
-static const int64 nInterval = nTargetTimespan / nTargetSpacing; // 20 blocks
+static const int64 nBlockSpacing = 10;
+static const int64 nTargetTimespan = nBlockSpacing * 60; // 10 minutes
+static const int64 nTargetSpacing = 2 * 60; // 2 minutes
+static const int64 nInterval = nTargetTimespan / nTargetSpacing; // 5 blocks
 static const int64 nCumulativeDiffMovingAverageNIntervals = 3; // Average last hour of difficulty
 static const int64 nMinHeightForFullReward = 1440; // Minimum height the blockchain has to have to give full reward
 
@@ -1122,38 +1135,66 @@ int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, bool di
     return subsidy + nFees;
 }
 
+unsigned long _fixed_decompact_bits_(unsigned int bits) {
+    //return 0x00000000FFFF0000000000000000000000000000000000000000000000000000LL / ( ((int64)(bits & 0xFFFFFF)) << ( (((bits & 0xFF000000) >> 24) - 3) << 3));
+    CBigNum cbn;
+    cbn.SetCompact(bits);
+    
+    return cbn.getulong();
+}
+
 bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove, int64 nMoves)
 {
-    CBigNum cummDiff = 0;
-    CBigNum nDiffSamples = 0;
-    
-    CBlockIndex* pcurblockindex = FindBlockByHeight(baseHeight);
-    CBigNum baseDiff;
-    baseDiff.SetCompact(pcurblockindex->nBits);
-    
-    for (int64 currentHeight=baseHeight - blockMove; currentHeight > 0; currentHeight -= blockMove) {
-        CBlockIndex* pblockindex = FindBlockByHeight(currentHeight);
-        
-        if (pblockindex != NULL) {
-            nDiffSamples++;
-            CBigNum nDiff;
-            nDiff.SetCompact(pblockindex->nBits);
-            cummDiff += nDiff;
-        }
-        
-        if (baseHeight >= 1800) {
-            // Release had this bug, consider only the last nMoves blocks since block 1800
-            nMoves--;
-            if (nMoves <= 0) {
-                break;
-            }
-        }
-    }
-
-    if (nDiffSamples == 0) {
+    if (baseHeight < 3000) {
+        // borked the release, changing the block reward from block 3000 onwards
         return false;
+    }
+    
+    if (baseHeight > 0) {
+        int64 cummDiff = 0;
+        int64 nDiffSamples = 0;
+        
+        CBlockIndex* pcurblockindex = FindBlockByHeight(baseHeight-1);
+        if (pcurblockindex != NULL) {
+            int64 baseDiff = _fixed_decompact_bits_(pcurblockindex->nBits);
+            int64 currentHeight = baseHeight - blockMove;
+            
+            for (int64 i=0; (i < nMoves) && (currentHeight > 0); i++) {
+                CBlockIndex* pblockindex = FindBlockByHeight(currentHeight);
+                
+                if (pblockindex != NULL) {
+                    CBlock block;
+                    block.ReadFromDisk(pblockindex);
+                    block.GetBlockHeader();
+                    
+                    nDiffSamples++;
+                    int64 nDiff = _fixed_decompact_bits_(block.nBits);
+                    
+                    /*printf("  -> MOVAVG = %"PRI64d"\n", nDiff);
+                    printf("  -> MOVHEIGHT = %"PRI64d"\n", pblockindex->nHeight);*/
+                    
+                    cummDiff += nDiff;
+                }
+                
+                currentHeight -= blockMove;
+            }
+        
+            if (nDiffSamples == 0) {
+                printf("***** Got 0 samples, if this is a long blockchain this is an error *****");
+                return false;
+            } else {
+                int64 delta = (baseDiff - (cummDiff / nDiffSamples));
+                /*printf("  -> cummDiff = %"PRI64d"\n", cummDiff);
+                printf("  -> nDiffSamples = %"PRI64d"\n", nDiffSamples);
+                printf("  -> baseDiff = %"PRI64d"\n", baseDiff);
+                printf("  -> nDelta = %"PRI64d"\n", delta);*/
+                return delta > 0;
+            }
+        } else {
+            return false;
+        }
     } else {
-        return (baseDiff - (cummDiff / nDiffSamples)) > 0;
+        return false;
     }
 }
 
@@ -1236,6 +1277,10 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
     int pHeight = nActualHeight->nHeight;
     printf("  pHeight = %"PRI64d"  \n", pHeight);
     int64 LimitUp = nTargetTimespan * 100 / 103; // up 3%
+    // FORKERS!!!! If you're forking this coin, disable the line above and enable the line below
+    // the default behaviour of limiting the difficulty increase by 3% is bad because the first
+    // 1000-2000 blocks get mined quickly.
+    //int64 LimitUp = nTargetTimespan * 100 / ((pHeight<nMinHeightForFullReward)?300:103); // up 3%
 
     if (nActualTimespan < LimitUp)
        {
@@ -1792,7 +1837,7 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
     if (fBenchmark)
         printf("- Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin)\n", (unsigned)vtx.size(), 0.001 * nTime, 0.001 * nTime / vtx.size(), nInputs <= 1 ? 0 : 0.001 * nTime / (nInputs-1));
 
-    bool diffWasUp = false;// CummulativeDifficultyMovingAverage(pindex->nHeight, nInterval, nCumulativeDiffMovingAverageNIntervals);
+    bool diffWasUp = CummulativeDifficultyMovingAverage(pindex->nHeight, nBlockSpacing * 2, nCumulativeDiffMovingAverageNIntervals);
     
     if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees, pindex->nBits, diffWasUp))
         return state.DoS(100, error("ConnectBlock() : coinbase pays too much (actual=%"PRI64d" vs limit=%"PRI64d")", vtx[0].GetValueOut(), GetBlockValue(pindex->nHeight, nFees, pindex->nBits, diffWasUp)));
@@ -4570,7 +4615,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         nLastBlockSize = nBlockSize;
         printf("CreateNewBlock(): total size %"PRI64u"\n", nBlockSize);
 
-        bool diffWasUp = false;//CummulativeDifficultyMovingAverage(pindexPrev->nHeight+1, nInterval, nCumulativeDiffMovingAverageNIntervals);
+        bool diffWasUp = CummulativeDifficultyMovingAverage(pindexPrev->nHeight+1, nBlockSpacing * 2, nCumulativeDiffMovingAverageNIntervals);
         
         pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits, diffWasUp);
         pblocktemplate->vTxFees[0] = -nFees;
