@@ -1140,6 +1140,14 @@ bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove
             nDiff.SetCompact(pblockindex->nBits);
             cummDiff += nDiff;
         }
+        
+        if (baseHeight >= 1800) {
+            // Release had this bug, consider only the last nMoves blocks since block 1800
+            nMoves--;
+            if (nMoves <= 0) {
+                break;
+            }
+        }
     }
 
     if (nDiffSamples == 0) {
