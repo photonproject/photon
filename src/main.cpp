@@ -1099,7 +1099,7 @@ static const int64 nInterval = nTargetTimespan / nTargetSpacing; // 20 blocks
 static const int64 nCumulativeDiffMovingAverageNIntervals = 3; // Average last hour of difficulty
 static const int64 nMinHeightForFullReward = 1440; // Minimum height the blockchain has to have to give full reward
 
-int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, double deltaDiff)
+int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, bool diffWasUp)
 {
 
     if (nHeight == 0)
@@ -1112,7 +1112,7 @@ int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, double 
 		subsidy = 1 * COIN / 1000;
     } else {
         // When difficulty increases, lower reward, when decreasing, extra reward
-        if (deltaDiff > 0) {
+        if (diffWasUp) {
             subsidy = COIN / 10;
         } else {
             subsidy = 2 * COIN;
@@ -1122,24 +1122,31 @@ int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, double 
     return subsidy + nFees;
 }
 
-double static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove, int64 nMoves)
+bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove, int64 nMoves)
 {
-    double cummDiff = 0.0;
-    int64 nDiffSamples = 0;
+    CBigNum cummDiff = 0;
+    CBigNum nDiffSamples = 0;
     
     CBlockIndex* pcurblockindex = FindBlockByHeight(baseHeight);
-    double baseDiff = GetDifficulty(pcurblockindex);
+    CBigNum baseDiff;
+    baseDiff.SetCompact(pcurblockindex->nBits);
     
     for (int64 currentHeight=baseHeight - blockMove; currentHeight > 0; currentHeight -= blockMove) {
         CBlockIndex* pblockindex = FindBlockByHeight(currentHeight);
         
         if (pblockindex != NULL) {
             nDiffSamples++;
-            cummDiff += GetDifficulty(pblockindex);
+            CBigNum nDiff;
+            nDiff.SetCompact(pblockindex->nBits);
+            cummDiff += nDiff;
         }
     }
 
-    return baseDiff - (cummDiff / nDiffSamples);
+    if (nDiffSamples == 0) {
+        return false;
+    } else {
+        return (baseDiff - (cummDiff / nDiffSamples)) > 0;
+    }
 }
 
 //
@@ -1777,10 +1784,10 @@ bool CBlock::ConnectBlock(CValidationState &state, CBlockIndex* pindex, CCoinsVi
     if (fBenchmark)
         printf("- Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin)\n", (unsigned)vtx.size(), 0.001 * nTime, 0.001 * nTime / vtx.size(), nInputs <= 1 ? 0 : 0.001 * nTime / (nInputs-1));
 
-    double diffDelta = CummulativeDifficultyMovingAverage(pindex->nHeight, nInterval, nCumulativeDiffMovingAverageNIntervals);
+    bool diffWasUp = false;// CummulativeDifficultyMovingAverage(pindex->nHeight, nInterval, nCumulativeDiffMovingAverageNIntervals);
     
-    if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees, pindex->nBits, diffDelta))
-        return state.DoS(100, error("ConnectBlock() : coinbase pays too much (actual=%"PRI64d" vs limit=%"PRI64d")", vtx[0].GetValueOut(), GetBlockValue(pindex->nHeight, nFees, pindex->nBits, diffDelta)));
+    if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees, pindex->nBits, diffWasUp))
+        return state.DoS(100, error("ConnectBlock() : coinbase pays too much (actual=%"PRI64d" vs limit=%"PRI64d")", vtx[0].GetValueOut(), GetBlockValue(pindex->nHeight, nFees, pindex->nBits, diffWasUp)));
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -4555,9 +4562,9 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         nLastBlockSize = nBlockSize;
         printf("CreateNewBlock(): total size %"PRI64u"\n", nBlockSize);
 
-        double diffDelta = CummulativeDifficultyMovingAverage(pindexPrev->nHeight+1, nInterval, nCumulativeDiffMovingAverageNIntervals);
+        bool diffWasUp = false;//CummulativeDifficultyMovingAverage(pindexPrev->nHeight+1, nInterval, nCumulativeDiffMovingAverageNIntervals);
         
-        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits, diffDelta);
+        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits, diffWasUp);
         pblocktemplate->vTxFees[0] = -nFees;
 
         // Fill in header
@@ -4567,7 +4574,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
         pblock->nNonce         = 0;
 
         // Calculate nVvalue dependet nBits
-        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits, diffDelta);
+        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees, pblock->nBits, diffWasUp);
         pblocktemplate->vTxFees[0] = -nFees;
 
         pblock->vtx[0].vin[0].scriptSig = CScript() << OP_0 << OP_0;
