@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "UniversalMolecule QT Wallet"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.1"
 #define MyAppPublisher "UniversalMolecule Foundation"
 #define MyAppURL "http://www.universalmolecule.co.ve/"
 #define MyAppExeName "universalmolecule-qt.exe"
