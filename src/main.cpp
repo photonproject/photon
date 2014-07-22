@@ -1135,28 +1135,22 @@ int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, bool di
     return subsidy + nFees;
 }
 
-unsigned long _fixed_decompact_bits_(unsigned int bits) {
-    //return 0x00000000FFFF0000000000000000000000000000000000000000000000000000LL / ( ((int64)(bits & 0xFFFFFF)) << ( (((bits & 0xFF000000) >> 24) - 3) << 3));
-    CBigNum cbn;
-    cbn.SetCompact(bits);
-    
-    return cbn.getulong();
-}
-
 bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove, int64 nMoves)
 {
-    if (baseHeight < 3000) {
-        // borked the release, changing the block reward from block 3000 onwards
+    // If you're forking this coin, remove this if
+    if (baseHeight < 3600) {
+        // borked the release, changing the block reward from block 3500 onwards
         return false;
     }
     
     if (baseHeight > 0) {
-        int64 cummDiff = 0;
+        CBigNum cummDiff(0);
         int64 nDiffSamples = 0;
         
         CBlockIndex* pcurblockindex = FindBlockByHeight(baseHeight-1);
         if (pcurblockindex != NULL) {
-            int64 baseDiff = _fixed_decompact_bits_(pcurblockindex->nBits);
+            CBigNum baseDiff;
+            baseDiff.SetCompact(pcurblockindex->nBits);
             int64 currentHeight = baseHeight - blockMove;
             
             for (int64 i=0; (i < nMoves) && (currentHeight > 0); i++) {
@@ -1168,10 +1162,8 @@ bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove
                     block.GetBlockHeader();
                     
                     nDiffSamples++;
-                    int64 nDiff = _fixed_decompact_bits_(block.nBits);
-                    
-                    /*printf("  -> MOVAVG = %"PRI64d"\n", nDiff);
-                    printf("  -> MOVHEIGHT = %"PRI64d"\n", pblockindex->nHeight);*/
+                    CBigNum nDiff;
+                    nDiff.SetCompact(block.nBits);
                     
                     cummDiff += nDiff;
                 }
@@ -1183,12 +1175,15 @@ bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove
                 printf("***** Got 0 samples, if this is a long blockchain this is an error *****");
                 return false;
             } else {
-                int64 delta = (baseDiff - (cummDiff / nDiffSamples));
-                /*printf("  -> cummDiff = %"PRI64d"\n", cummDiff);
-                printf("  -> nDiffSamples = %"PRI64d"\n", nDiffSamples);
-                printf("  -> baseDiff = %"PRI64d"\n", baseDiff);
-                printf("  -> nDelta = %"PRI64d"\n", delta);*/
-                return delta > 0;
+                CBigNum avgDiff = cummDiff / nDiffSamples;
+                
+                if (baseDiff > avgDiff) {
+                    printf("  ** LOW REWARD **\n");
+                } else {
+                    printf("  ** HIGH REWARD **\n");
+                }
+                
+                return baseDiff > avgDiff;
             }
         } else {
             return false;
