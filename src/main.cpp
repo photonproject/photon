@@ -1137,11 +1137,15 @@ int64 static GetBlockValue(int nHeight, int64 nFees, unsigned int nBits, bool di
 
 bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove, int64 nMoves)
 {
-    // If you're forking this coin, remove this if
+    // If you're forking this coin, remove this block >>>>>>
+    int bork = 0;
     if (baseHeight < 3600) {
         // borked the release, changing the block reward from block 3500 onwards
         return false;
+    } else if (baseHeight < 4000) {
+        bork = 1;
     }
+    // end of the bork bork bork bork block <<<<<<<<<<<
     
     if (baseHeight > 0) {
         CBigNum cummDiff(0);
@@ -1149,8 +1153,16 @@ bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove
         
         CBlockIndex* pcurblockindex = FindBlockByHeight(baseHeight-1);
         if (pcurblockindex != NULL) {
-            CBigNum baseDiff;
+            CBigNum baseDiff, nbaseDiff;
+            CBlock curblock;
+            curblock.ReadFromDisk(pcurblockindex);
+            curblock.GetBlockHeader();
             baseDiff.SetCompact(pcurblockindex->nBits);
+            nbaseDiff.SetCompact(curblock.nBits);
+            
+            double baseDiffdouble = GetDifficulty(pcurblockindex);
+            double cummDiffDouble = 0;
+            
             int64 currentHeight = baseHeight - blockMove;
             
             for (int64 i=0; (i < nMoves) && (currentHeight > 0); i++) {
@@ -1165,7 +1177,13 @@ bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove
                     CBigNum nDiff;
                     nDiff.SetCompact(block.nBits);
                     
+                    /*printf("  -> Successful Sample: Height %i, diff=%s\n", currentHeight, nDiff.ToString().c_str());
+                    printf("  -> Using rpc funcs: %f", GetDifficulty(pblockindex));*/
+                    
+                    cummDiffDouble += GetDifficulty(pblockindex);
                     cummDiff += nDiff;
+                } else {
+                    printf("  -> NULL Sample: Height %i\n", currentHeight);
                 }
                 
                 currentHeight -= blockMove;
@@ -1176,14 +1194,36 @@ bool static CummulativeDifficultyMovingAverage(int64 baseHeight, int64 blockMove
                 return false;
             } else {
                 CBigNum avgDiff = cummDiff / nDiffSamples;
+                double avgDiffDouble = cummDiffDouble / nDiffSamples;
                 
-                if (baseDiff > avgDiff) {
-                    printf("  ** LOW REWARD **\n");
+                /*printf("  -> baseDiff: %s\n", baseDiff.ToString().c_str());
+                printf("  -> nbaseDif: %s\n", nbaseDiff.ToString().c_str());
+                printf("  -> cummDiff: %s\n", cummDiff.ToString().c_str());
+                printf("  -> avgDiff:  %s\n", avgDiff.ToString().c_str());
+                printf("  -> baseDiff using rpc funcs: %f\n", baseDiffdouble);
+                printf("  -> avgDiffDouble:  %f\n", avgDiffDouble);
+                printf("  -> reward with rpc funcs: %f\n", (baseDiffdouble > avgDiffDouble)?0.1:2);
+                
+                CBigNum navgDiff = cummDiff / CBigNum(nDiffSamples);
+                printf("  -> navgDiff: %s\n", navgDiff.ToString().c_str());*/
+                
+                if (bork == 1) {
+                    if (baseDiff > avgDiff) {
+                        printf("  ** LOW REWARD **\n");
+                    } else {
+                        printf("  ** HIGH REWARD **\n");
+                    }
+                    
+                    return baseDiff > avgDiff;
                 } else {
-                    printf("  ** HIGH REWARD **\n");
+                    if (baseDiffdouble > avgDiffDouble) {
+                        printf("  ** LOW REWARD **\n");
+                    } else {
+                        printf("  ** HIGH REWARD **\n");
+                    }
+                    
+                    return baseDiffdouble > avgDiffDouble;
                 }
-                
-                return baseDiff > avgDiff;
             }
         } else {
             return false;
