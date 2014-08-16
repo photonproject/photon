@@ -43,14 +43,6 @@ namespace Checkpoints
         ( 31300, uint256("0x00000000000668d829d8f12684ff0c63b6e7f84bdff988f7ef5831c116fe8615"))
         ( 49009, uint256("0x05e6756348da0e27b1547f530160c1b7aff1955751b3dbe1cef80ee715f0bd0b"))
         ( 75020, uint256("0x07676917780a8b0054f5c0f7006b5d3037f6d68b40af63e4c119e48d96ee90c6"))
-05:27:57
-￼
-getblockhash 75020
-
-
-05:27:57
-￼
-07676917780a8b0054f5c0f7006b5d3037f6d68b40af63e4c119e48d96ee90c6
 
         ;
     static const CCheckpointData data = {
