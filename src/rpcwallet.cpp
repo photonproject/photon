@@ -279,6 +279,55 @@ Value sendtoaddress(const Array& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
+Value burncoins(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 3 || params.size() > 3)
+        throw runtime_error(
+            "burncoins <amount> <key> <value>\n"
+            "<amount> is a real and is rounded to the nearest 0.00000001"
+            + HelpRequiringPassphrase());
+
+    // Amount
+    int64 nAmount;
+    if (params[0].get_real() != 0.0)
+        nAmount = AmountFromValue(params[0]);
+    //int64 nAmount = 0;
+    
+    string key = params[1].get_str();
+    string value = params[2].get_str();
+
+    if (key.length() > 8) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: Key must be equal or less than 8 characters.");
+    }
+    
+    if (value.length() > 31) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Error: Value must be equal or less than 31 characters.");
+    }
+    
+    // Wallet comments
+    CWalletTx wtx;
+    wtx.mapValue["comment"] = "Burnt coins";
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+
+    CScript scriptPubKey = CScript(OP_RETURN);
+    scriptPubKey << ((unsigned char)(key.length() | (value.length() << 3)));
+    for (int i=0; i < key.length(); i++) {
+        scriptPubKey << key[i];
+    }
+    
+    for (int i=0; i < value.length(); i++) {
+        scriptPubKey << ((unsigned char)value[i]);
+    }
+    
+    string strError = pwalletMain->SendMoney(scriptPubKey, nAmount, wtx);
+    if (strError != "")
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+
+    return wtx.GetHash().GetHex();
+}
+
 Value listaddressgroupings(const Array& params, bool fHelp)
 {
     if (fHelp)

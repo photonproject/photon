@@ -70,6 +70,8 @@ json_spirit::Object JSONRPCError(int code, const std::string& message);
 
 void StartRPCThreads();
 void StopRPCThreads();
+void InitRPCMining();
+void ShutdownRPCMining();
 int CommandLineRPC(int argc, char *argv[]);
 
 /** Convert parameter values for RPC call from strings to command-specific JSON objects. */
@@ -123,7 +125,6 @@ public:
 };
 
 extern const CRPCTable tableRPC;
-extern CReserveKey* pMiningKey;
 
 extern int64 nWalletUnlockTime;
 extern int64 AmountFromValue(const json_spirit::Value& value);
@@ -157,6 +158,7 @@ extern json_spirit::Value getaccountaddress(const json_spirit::Array& params, bo
 extern json_spirit::Value setaccount(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getaccount(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getaddressesbyaccount(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value burncoins(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value sendtoaddress(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value signmessage(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value verifymessage(const json_spirit::Array& params, bool fHelp);

@@ -316,7 +316,6 @@ public:
                 nExpectedSize = 20;
                 fExpectTestNet = true;
                 break;
-
             default:
                 return false;
         }
