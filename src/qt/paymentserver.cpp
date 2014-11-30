@@ -18,8 +18,10 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QStringList>
-#include <QUrl>
+#if QT_VERSION < 0x050000
 
+#include <QUrl>
+#endif
 using namespace boost;
 
 const int BITCOIN_IPC_CONNECT_TIMEOUT = 1000; // milliseconds
