@@ -50,6 +50,10 @@ static const unsigned int BLOCKFILE_CHUNK_SIZE = 0x1000000; // 16 MiB
 static const unsigned int UNDOFILE_CHUNK_SIZE = 0x100000; // 1 MiB
 /** Fake height value used in CCoins to signify they are only in the memory pool (since 0.8) */
 static const unsigned int MEMPOOL_HEIGHT = 0x7FFFFFFF;
+/** Dust Soft Limit, allowed with additional fee per output */
+static const int64 DUST_SOFT_LIMIT = 1000; // 0.00001 UMO
+/** Dust Hard Limit, ignored as wallet inputs (mininput default) */
+static const int64 DUST_HARD_LIMIT = 1000;   // 0.00001 UMO mininput
 /** No amount larger than this (in satoshi) is valid */
 static const int64 MAX_MONEY = 10512000144 * COIN / 100; // 105,120,001.44 coins
 inline bool MoneyRange(int64 nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
@@ -102,6 +106,7 @@ extern unsigned int nCoinCacheSize;
 
 // Settings
 extern int64 nTransactionFee;
+extern int64 nMinimumInputValue;
 
 // Minimum disk space required - used in CheckDiskSpace()
 static const uint64 nMinDiskSpace = 52428800;
@@ -2264,6 +2269,9 @@ struct CBlockTemplate
     std::vector<int64_t> vTxSigOps;
 };
 
+#if defined(_M_IX86) || defined(__i386__) || defined(__i386) || defined(_M_X64) || defined(__x86_64__) || defined(_M_AMD64)
+extern unsigned int cpuid_edx;
+#endif
 
 
 

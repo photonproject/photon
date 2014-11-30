@@ -127,6 +127,8 @@ private:
     void saveWindowGeometry();
     /** Restore window size and position */
     void restoreWindowGeometry();
+    /** Enable or disable all wallet-related actions */
+    void setWalletActionsEnabled(bool enabled);
 
 public slots:
     /** Set number of connections shown in the UI */
