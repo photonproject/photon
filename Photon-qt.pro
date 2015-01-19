@@ -11,14 +11,25 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
-CONFIG += static
+#
+#
+CONFIG += static 
 
 # for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt
 # for boost thread win32 with _win32 sufix
 # use: BOOST_THREAD_LIB_SUFFIX=_win32-...
 # or when linking against a specific BerkelyDB version: BDB_LIB_SUFFIX=-4.8
-
+#
+#
+#
+#  please do not use or uncomment these next few lines they are for future testing of porting Photon to 9.x codebase and use with qt 5 
+#  so far testing with mgw 49 produces non working or unreliable binary files on windows
+#  also do no build with ssl 1.0.1k no testing with open ssl 1.0.1l has been done yet (as of 1-19-2015 )
+## BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
+#LIBS += -lboost_system-mgw49-mt-s-1_55 -lboost_filesystem-mgw49-mt-s-1_55 -lboost_program_options-mgw49-mt-s-1_55 -lboost_thread-mgw49-mt-s-1_55
+#  
+#
 # Dependency library locations can be customized with:
 #    BOOST_INCLUDE_PATH, BOOST_LIB_PATH, BDB_INCLUDE_PATH,
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
