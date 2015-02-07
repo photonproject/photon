@@ -1,5 +1,5 @@
 ---
-name: "photon"
+name: "bitcoin"
 suites:
 - "lucid"
 architectures:
@@ -17,39 +17,39 @@ packages:
 - "git-core"
 - "unzip"
 - "pkg-config"
-- "libpng-1.6.12-dev"
+- "libpng12-dev"
 reference_datetime: "2011-01-30 00:00:00"
 remotes:
-- "url": "https://github.com/photonproject/photon.git"
-  "dir": "photon"
+- "url": "https://github.com/bitcoin/bitcoin.git"
+  "dir": "bitcoin"
 files:
-- "miniupnpc-1.9.tar.gz"
-- "qrencode-3.4.4.tar.bz2"
+- "miniupnpc-1.6.tar.gz"
+- "qrencode-3.2.0.tar.bz2"
 script: |
   INSTDIR="$HOME/install"
   export LIBRARY_PATH="$INSTDIR/lib"
   #
-  tar xzf miniupnpc-1.9.tar.gz
-  cd miniupnpc-1.9
+  tar xzf miniupnpc-1.6.tar.gz
+  cd miniupnpc-1.6
   INSTALLPREFIX=$INSTDIR make $MAKEOPTS install
   cd ..
   #
-  tar xjf qrencode-3.4.4.tar.bz2
-  cd qrencode-3.4.4
+  tar xjf qrencode-3.2.0.tar.bz2
+  cd qrencode-3.2.0
   ./configure --prefix=$INSTDIR --enable-static --disable-shared
   make $MAKEOPTS install
   cd ..
   #
-  cd photon
+  cd bitcoin
   mkdir -p $OUTDIR/src
   git archive HEAD | tar -x -C $OUTDIR/src
   cp $OUTDIR/src/doc/README.md $OUTDIR
   cp $OUTDIR/src/COPYING $OUTDIR
   cd src
-  make -f makefile.unix STATIC=1 OPENSSL_INCLUDE_PATH="$INSTDIR/include" OPENSSL_LIB_PATH="$INSTDIR/lib" $MAKEOPTS photond USE_UPNP=0 DEBUGFLAGS=
+  make -f makefile.unix STATIC=1 OPENSSL_INCLUDE_PATH="$INSTDIR/include" OPENSSL_LIB_PATH="$INSTDIR/lib" $MAKEOPTS bitcoind USE_UPNP=0 DEBUGFLAGS=
   mkdir -p $OUTDIR/bin/$GBUILD_BITS
-  install -s photond $OUTDIR/bin/$GBUILD_BITS
+  install -s bitcoind $OUTDIR/bin/$GBUILD_BITS
   cd ..
   qmake INCLUDEPATH="$INSTDIR/include" LIBS="-L$INSTDIR/lib" RELEASE=1 USE_QRCODE=1
   make $MAKEOPTS
-  install photon-qt $OUTDIR/bin/$GBUILD_BITS
+  install bitcoin-qt $OUTDIR/bin/$GBUILD_BITS
