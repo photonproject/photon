@@ -1,7 +1,7 @@
 src/*.exe
-src/bitcoin
-src/bitcoind
-src/test_bitcoin
+src/photon
+src/photond
+src/test_photon
 .*.swp
 *.*~*
 *.bak
@@ -9,17 +9,17 @@ src/test_bitcoin
 *.orig
 *.o
 *.patch
-.bitcoin
+.photon
 
 # Compilation and Qt preprocessor part
 *.qm
 Makefile
-bitcoin-qt
-Bitcoin-Qt.app
+photon-qt
+Photon-Qt.app
 
 # Unit-tests
 Makefile.test
-bitcoin-qt_test
+photon-qt_test
 
 # Resources cpp
 qrc_*.cpp
@@ -30,3 +30,4 @@ qrc_*.cpp
 # Mac specific
 .DS_Store
 build
+!src/leveldb*/Makefile
