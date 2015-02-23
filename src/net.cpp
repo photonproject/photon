@@ -49,7 +49,7 @@ static bool vfLimited[NET_MAX] = {};
 static CNode* pnodeLocalHost = NULL;
 static CNode* pnodeSync = NULL;
 uint64 nLocalHostNonce = 0;
-array<int, THREAD_MAX> vnThreadsRunning;
+
 static std::vector<SOCKET> vhListenSocket;
 CAddrMan addrman;
 int nMaxConnections = 125;
