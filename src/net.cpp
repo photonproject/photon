@@ -151,7 +151,7 @@ bool RecvLine(SOCKET hSocket, string& strLine)
         }
         else if (nBytes <= 0)
         {
-            boost::this_thread::interruption_point();
+            boost::array<int, THREAD_MAX> vnThreadsRunning;
             if (nBytes < 0)
             {
                 int nErr = WSAGetLastError();
