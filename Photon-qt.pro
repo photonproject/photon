@@ -21,21 +21,33 @@ CONFIG += static
 
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)  
 LIBS += -lssl -lcrypto 
-windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
+#windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
 
-BOOST_LIB_SUFFIX=-mgw46-mt-sd-1_55
-BOOST_INCLUDE_PATH=C:\deps\boost_1_55_0
-BOOST_LIB_PATH=C:\deps\boost_1_55_0\stage\lib
-BDB_INCLUDE_PATH=C:\deps\db-4.8.30.NC\build_unix
-BDB_LIB_PATH=C:\deps\db-4.8.30.NC\build_unix
-OPENSSL_INCLUDE_PATH=C:\deps\openssl-1.0.1j\include
-OPENSSL_LIB_PATH=C:\deps\openssl-1.0.1j
-MINIUPNPC_LIB_SUFFIX=-miniupnpc
-MINIUPNPC_INCLUDE_PATH=C:\deps\miniupnpc
-MINIUPNPC_LIB_PATH=C:\deps\miniupnpc
-QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
-QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
-LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.14
+#BOOST_LIB_SUFFIX=-mgw46-mt-sd-1_55
+#BOOST_INCLUDE_PATH=C:\deps\boost_1_55_0
+#BOOST_LIB_PATH=C:\deps\boost_1_55_0\stage\lib
+#BDB_INCLUDE_PATH=C:\deps\db-4.8.30.NC\build_unix
+#BDB_LIB_PATH=C:\deps\db-4.8.30.NC\build_unix
+#OPENSSL_INCLUDE_PATH=C:\deps\openssl-1.0.1j\include
+#OPENSSL_LIB_PATH=C:\deps\openssl-1.0.1j
+#MINIUPNPC_LIB_SUFFIX=-miniupnpc
+#MINIUPNPC_INCLUDE_PATH=C:\deps\miniupnpc
+#MINIUPNPC_LIB_PATH=C:\deps\miniupnpc
+#QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
+#QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
+#LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.14
+BOOST_INCLUDE_PATH=/opt/local/include/boost
+BOOST_LIB_PATH=/opt/local/lib
+BDB_INCLUDE_PATH=/opt/local/include/db48
+BDB_LIB_PATH=/opt/local/lib/db48
+OPENSSL_INCLUDE_PATH=/opt/local/include/openssl
+OPENSSL_LIB_PATH=/opt/local/lib
+MINIUPNPC_INCLUDE_PATH=/opt/local/include/miniupnpc
+MINIUPNPC_LIB_PATH=/opt/local/lib
+QRENCODE_INCLUDE_PATH=/opt/local/include
+QRENCODE_LIB_PATH=/opt/local/lib
+
+
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -64,11 +76,11 @@ contains(RELEASE, 1) {
 # for extra security (see: https://wiki.debian.org/Hardening): this flag is GCC compiler-specific
 QMAKE_CXXFLAGS *= -D_FORTIFY_SOURCE=2
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
-win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
+#win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
-win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
+#win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
 # i686-w64-mingw32
-win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++ -static
+#win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++ -static
 
 # use: qmake "USE_QRCODE=1"
 # libqrencode (http://fukuchi.org/works/qrencode/index.en.html) must be installed for support
@@ -80,7 +92,8 @@ contains(USE_QRCODE, 1) {
 
 # use: qmake "USE_UPNP=1" ( enabled by default; default)
 #  or: qmake "USE_UPNP=0" (disabled by default)
-#  or: qmake "USE_UPNP=-" (not supported)
+# qmake "USE_UPNP=-" (not supported)
+
 # miniupnpc (http://miniupnp.free.fr/files/) must be installed for support
 contains(USE_UPNP, -) {
     message(Building without UPNP support)
