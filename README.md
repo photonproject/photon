@@ -42,3 +42,24 @@ information or see http://opensource.org/licenses/MIT.
 
 
 
+For the most up to date information on Photon and Blake Coin please visit the Blake Coin Homepage https://blakecoin.org/ as it has much more information and detail about Blake Coin, Photon, and other developments with this project.  As always with any open source project please feel free to use github to offer your contributions or ideas to improve the project. 
+
+If you want to support the project but are unable to code consider running a node for Photon 
+
+(If you need help doing this contact @cinnamon_carter )
+
+Some current items I am working on but are not finished with (just a few)
+
+p2pool support for the blake256 algorithm Blake Coin and the merged child coins
+
+A power pool merged mining setup to merge mine all the recognized members of the blake256 family
+
+An upgraded gpu miner for blake256 with strantum support (possibly based on a newer version of cg miner or sg miner)
+
+A graphic user interface in open source code (apart from the qt client) for 'decoding' information in the blockchain.
+
+A graphic user interface in open source code to allow easier writing of documents or other information and include it in a block as a spent transaction to multiple base 58 addresses  (the manual method is cumbersome)
+
+I am still researching optimizations for blake256 gpu/cpu/fpga mining. 
+
+If you can give as a gift a working fpga board to the photon project please get in touch.
