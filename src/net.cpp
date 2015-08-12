@@ -1465,6 +1465,11 @@ void ThreadOpenConnections()
 
 void ThreadOpenAddedConnections()
 {
+	mapMultiArgs["-addnode"].push_back("blakecoin.org");
+	mapMultiArgs["-addnode"].push_back("eu3.blakecoin.com");
+	mapMultiArgs["-addnode"].push_back("ny2.blakecoin.com");
+	mapMultiArgs["-addnode"].push_back("la1.blakecoin.com");
+	mapMultiArgs["-addnode"].push_back("cg1.blakecoin.com");
     {
         LOCK(cs_vAddedNodes);
         vAddedNodes = mapMultiArgs["-addnode"];
