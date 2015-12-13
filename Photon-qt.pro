@@ -1,9 +1,10 @@
 TEMPLATE = app
 TARGET = photon-qt
 macx:TARGET = "Photon-Qt"
-VERSION = 0.8.9.5
+VERSION = 0.8.9.6
 INCLUDEPATH += src src/json src/qt
 QT += core gui network
+#DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN __NO_SYSTEM_INCLUDES
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
@@ -25,25 +26,26 @@ CONFIG += static
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
 #uncomment lines 28,31, and 33-45  and comment out line 141 to build on windows with mingw 
 
-#windows:LIBS += -lshlwapi
+# Start of Windows Path Uncomment and change if your paths are diffrent
+windows:LIBS += -lshlwapi
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
 #windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
-LIBS += -lboost_system-mgw46-mt-s-1_55 -lboost_filesystem-mgw46-mt-s-1_55 -lboost_program_options-mgw46-mt-s-1_55 -lboost_thread-mgw46-mt-s-1_55
-#BOOST_LIB_SUFFIX=-mgw46-mt-s-1_55
+LIBS += -lboost_system-mgw49-mt-s-1_55 -lboost_filesystem-mgw49-mt-s-1_55 -lboost_program_options-mgw49-mt-s-1_55 -lboost_thread-mgw49-mt-s-1_55
+#BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
 #BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
 #BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
-#BDB_INCLUDE_PATH=c:/deps/db/build_unix
-#BDB_LIB_PATH=c:/deps/db/build_unix
-#OPENSSL_INCLUDE_PATH=c:/deps/openssl-1.0.2d/include
-#OPENSSL_LIB_PATH=c:/deps/openssl-1.0.2d
+#BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
+#BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
+#OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2e/include
+#OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2e
 #MINIUPNPC_LIB_SUFFIX=-miniupnpc
 #MINIUPNPC_INCLUDE_PATH=C:/deps/miniupnpc
 #MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 #QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
 #QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
-#LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.14
-#QRENCODE_LIB_PATH=C:/deps/qr/.libs
+#LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.20
+# End of Windows Paths
 
 
 OBJECTS_DIR = build
@@ -73,11 +75,13 @@ contains(RELEASE, 1) {
 # for extra security (see: https://wiki.debian.org/Hardening): this flag is GCC compiler-specific
 QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
-win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
+#win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
-win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
+#win32:QMAKE_LFLAGS *= -Wl,--large-address-aware
+#win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
 # i686-w64-mingw32
-win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++ -static
+#win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++ -static
+win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++
 
 # use: qmake "USE_QRCODE=1"
 # libqrencode (http://fukuchi.org/works/qrencode/index.en.html) must be installed for support
@@ -94,14 +98,14 @@ contains(USE_QRCODE, 1) {
 contains(USE_UPNP, -) {
  message(Building without UPNP support)
 } else {
- message(Building with UPNP support)
- count(USE_UPNP, 0) {
- USE_UPNP=1
- }
- DEFINES += USE_UPNP=$$USE_UPNP STATICLIB
- INCLUDEPATH += $$MINIUPNPC_INCLUDE_PATH
- LIBS += $$join(MINIUPNPC_LIB_PATH,,-L,) -lminiupnpc
- win32:LIBS += -liphlpapi
+    message(Building with UPNP support)
+    count(USE_UPNP, 0) {
+        USE_UPNP=1
+    }
+    DEFINES += USE_UPNP=$$USE_UPNP MINIUPNP_STATICLIB STATICLIB
+    INCLUDEPATH += $$MINIUPNPC_INCLUDE_PATH
+    LIBS += $$join(MINIUPNPC_LIB_PATH,,-L,) -lminiupnpc
+    win32:LIBS += -liphlpapi
 }
 # use: qmake "USE_DBUS=1"
 contains(USE_DBUS, 1) {
@@ -387,7 +391,7 @@ OTHER_FILES += README.md \
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    win32:BOOST_LIB_SUFFIX = -mgw48-mt-s-1_55
+    win32:BOOST_LIB_SUFFIX = -mgw49-mt-s-1_55
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
