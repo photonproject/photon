@@ -419,7 +419,7 @@ int ReadHTTPStatus(std::basic_istream<char>& stream, int &proto)
 int ReadHTTPHeaders(std::basic_istream<char>& stream, map<string, string>& mapHeadersRet)
 {
     int nLen = 0;
-    loop
+    looper
     {
         string str;
         std::getline(stream, str);
@@ -543,7 +543,7 @@ bool ClientAllowed(const boost::asio::ip::address& address)
     if (address == asio::ip::address_v4::loopback()
      || address == asio::ip::address_v6::loopback()
      || (address.is_v4()
-         // Check whether IPv4 addresses match 127.0.0.0/8 (loopback subnet)
+         // Check whether IPv4 addresses match 127.0.0.0/8 (looperback subnet)
       && (address.to_v4().to_ulong() & 0xff000000) == 0x7f000000))
         return true;
 
@@ -812,7 +812,7 @@ strRPCUserColonPass = mapArgs["-rpcuser"] + ":" + mapArgs["-rpcpassword"];
     }
 
     try {
-        // If dual IPv6/IPv4 failed (or we're opening loopback interfaces only), open IPv4 separately
+        // If dual IPv6/IPv4 failed (or we're opening looperback interfaces only), open IPv4 separately
         if (!fListening || loopback || v6_only_error)
         {
             bindAddress = loopback ? asio::ip::address_v4::loopback() : asio::ip::address_v4::any();

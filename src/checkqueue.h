@@ -58,7 +58,7 @@ private:
     unsigned int nBatchSize;
 
     // Internal function that does bulk of the verification work.
-    bool Loop(bool fMaster = false) {
+    bool loop(bool fMaster = false) {
         boost::condition_variable &cond = fMaster ? condMaster : condWorker;
         std::vector<T> vChecks;
         vChecks.reserve(nBatchSize);
@@ -67,7 +67,7 @@ private:
         do {
             {
                 boost::unique_lock<boost::mutex> lock(mutex);
-                // first do the clean-up of the previous loop run (allowing us to do it in the same critsect)
+                // first do the clean-up of the previous looper run (allowing us to do it in the same critsect)
                 if (nNow) {
                     fAllOk &= fOk;
                     nTodo -= nNow;
@@ -78,7 +78,7 @@ private:
                     // first iteration
                     nTotal++;
                 }
-                // logically, the do loop starts here
+                // logically, the do looper starts here
                 while (queue.empty()) {
                     if ((fMaster || fQuit) && nTodo == 0) {
                         nTotal--;
@@ -124,12 +124,12 @@ public:
 
     // Worker thread
     void Thread() {
-        Loop();
+        loop();
     }
 
     // Wait until execution finishes, and return whether all evaluations where succesful.
     bool Wait() {
-        return Loop(true);
+        return loop(true);
     }
 
     // Add a batch of checks to the queue

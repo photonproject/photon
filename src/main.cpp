@@ -1499,7 +1499,7 @@ bool CTransaction::CheckInputs(CValidationState &state, CCoinsViewCache &inputs,
         if (!MoneyRange(nFees))
             return state.DoS(100, error("CheckInputs() : nFees out of range"));
 
-        // The first loop above does all the inexpensive checks.
+        // The first looper above does all the inexpensive checks.
         // Only if ALL inputs pass do we perform expensive ECDSA signature checks.
         // Helps prevent CPU exhaustion attacks.
 
@@ -4695,7 +4695,7 @@ void static BitcoinMiner(CWallet *pwallet)
     CReserveKey reservekey(pwallet);
     unsigned int nExtraNonce = 0;
 
-    try { loop {
+    try { looper {
         while (vNodes.empty())
             MilliSleep(1000);
 
@@ -4718,7 +4718,7 @@ void static BitcoinMiner(CWallet *pwallet)
         int64 nStart = GetTime();
         uint256 hash;
         // unsigned int nHashesDone = 0;
-        loop
+        looper
         {
 //            unsigned int nNonceFound;
 

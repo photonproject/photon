@@ -7,27 +7,27 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>$VERSION, Copyright © 2009-$YEAR The Bitcoin developers</string>
+        <string>1.0.0, Copyright © 2009-$YEAR The Bitcoin developers && PhotonCC</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$VERSION</string>
+        <string>1.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>$VERSION</string>
+        <string>1.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>Bitcoin-Qt</string>
+        <string>Photon-Qt</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.bitcoinfoundation.Bitcoin-Qt</string>
+        <string>com.photoncc.photonqt</string>
         <key>CFBundleURLTypes</key>
         <array>
           <dict>
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
-            <string>org.bitcoinfoundation.BitcoinPayment</string>
+            <string>com.photoncc.photonqt</string>
             <key>CFBundleURLSchemes</key>
             <array>
-              <string>bitcoin</string>
+              <string>Photon</string>
             </array>
           </dict>
         </array>
