@@ -31,10 +31,10 @@ windows:LIBS += -lshlwapi
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
 #windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
-LIBS += -lboost_system-mgw49-mt-s-1_55 -lboost_filesystem-mgw49-mt-s-1_55 -lboost_program_options-mgw49-mt-s-1_55 -lboost_thread-mgw49-mt-s-1_55
+#LIBS += -lboost_system-mgw49-mt-s-1_55 -lboost_filesystem-mgw49-mt-s-1_55 -lboost_program_options-mgw49-mt-s-1_55 -lboost_thread-mgw49-mt-s-1_55
 #BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
-#BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
-#BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
+#BOOST_INCLUDE_PATH=/usr/local/opt/boost@1.55/include
+#BOOST_LIB_PATH=/usr/local/opt/boost@1.55/lib
 #BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
 #BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
 #OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2n/include
@@ -46,6 +46,18 @@ LIBS += -lboost_system-mgw49-mt-s-1_55 -lboost_filesystem-mgw49-mt-s-1_55 -lboos
 #QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
 #LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.20
 # End of Windows Paths
+#﻿BDB_INCLUDE_PATH=/usr/local/Cellar/berkeley-db@4/4.8.30/include
+#BDB_LIB_PATH=/usr/local/Cellar/berkeley-db@4/4.8.30/lib
+#BOOST_INCLUDE_PATH=/usr/local/opt/boost@1.55/include
+#BOOST_LIB_PATH=/usr/local/opt/boost@1.55/lib
+#LIBPNG_INCLUDE_PATH=/usr/local/opt/libpng/include
+#LIBPNG_LIB_PATH=/usr/local/opt/libpng/lib
+#MINIUPNPC_INCLUDE_PATH=/usr/local/Cellar/miniupnpc/include
+#MINIUPNPC_LIB_PATH=/usr/local/Cellar/miniupnpc/lib
+#OPENSSL_INCLUDE_PATH=/usr/local/Cellar/openssl/1.0.2j/include
+#OPENSSL_LIB_PATH=/usr/local/Cellar/openssl/1.0.2j/lib
+#QRENCODE_INCLUDE_PATH=/usr/local/opt/qrencode/include
+#QRENCODE_LIB_PATH=/usr/local/opt/qrencode/lib
 
 
 OBJECTS_DIR = build
@@ -55,9 +67,9 @@ UI_DIR = build
 # use: qmake "RELEASE=1"
 contains(RELEASE, 1) {
     # Mac: compile for maximum compatibility (10.5, 32-bit)
-    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.5 -arch i386 -isysroot /Developer/SDKs/MacOSX10.5.sdk
-    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.5 -arch i386 -isysroot /Developer/SDKs/MacOSX10.5.sdk
-    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.5 -arch i386 -isysroot /Developer/SDKs/MacOSX10.5.sdk
+    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.12  -isysroot /Developer/SDKs/MacOSX10.12.sdk
+    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.12 -isysroot /Developer/SDKs/MacOSX10.12.sdk
+    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.12 -isysroot /Developer/SDKs/MacOSX10.21.sdk
 
     !win32:!macx {
         # Linux: static link and extra security (see: https://wiki.debian.org/Hardening)
@@ -161,7 +173,7 @@ QMAKE_CLEAN += $$PWD/src/leveldb/libleveldb.a; cd $$PWD/src/leveldb ; $(MAKE) cl
     DEFINES += HAVE_BUILD_INFO
 }
 
-QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter -Wstack-protector
+QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter -Wstack-protector -Wno-reserved-user-defined-literal
 
 macx:QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated
 
@@ -458,7 +470,7 @@ win32:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32
 LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -lboost_program_options$$BOOST_LIB_SUFFIX -lboost_thread$$BOOST_THREAD_LIB_SUFFIX
 win32:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
 macx:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
-
+unix|win32: LIBS += -ldb_cxx
 contains(RELEASE, 1) {
     !win32:!macx {
         # Linux: turn dynamic linking back on for c/c++ runtime libraries
@@ -466,4 +478,112 @@ contains(RELEASE, 1) {
     }
 }
 
+
+
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/release/ -ldb
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/debug/ -ldb
+else:unix: LIBS += -L$$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/ -ldb
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/release/libdb.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/debug/libdb.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/release/db.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/debug/db.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/libdb.a
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/release/ -ldb_cxx
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/debug/ -ldb_cxx
+else:unix: LIBS += -L$$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/ -ldb_cxx
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/release/libdb_cxx.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/debug/libdb_cxx.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/release/db_cxx.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/debug/db_cxx.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/berkeley-db@4/4.8.30/lib/libdb_cxx.a
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/release/ -lboost_chrono
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/debug/ -lboost_chrono
+else:unix: LIBS += -L$$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/ -lboost_chrono
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/release/libboost_chrono.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/debug/libboost_chrono.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/release/boost_chrono.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/debug/boost_chrono.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/libboost_chrono.a
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/release/ -lboost_atomic-mt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/debug/ -lboost_atomic-mt
+else:unix: LIBS += -L$$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/ -lboost_atomic-mt
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/release/libboost_atomic-mt.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/debug/libboost_atomic-mt.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/release/boost_atomic-mt.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/debug/boost_atomic-mt.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/libboost_atomic-mt.a
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/release/ -lssl
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/debug/ -lssl
+else:unix: LIBS += -L$$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/ -lssl
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/release/libssl.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/debug/libssl.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/release/ssl.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/debug/ssl.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/libssl.a
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/release/ -lcrypto
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/debug/ -lcrypto
+else:unix: LIBS += -L$$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/ -lcrypto
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/release/libcrypto.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/debug/libcrypto.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/release/crypto.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/debug/crypto.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/openssl/1.0.2o_1/lib/libcrypto.a
 system($$QMAKE_LRELEASE -silent $$TRANSLATIONS)
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/miniupnpc/lib/release/ -lminiupnpc
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../usr/local/Cellar/miniupnpc/lib/debug/ -lminiupnpc
+else:unix: LIBS += -L$$PWD/../../../../usr/local/Cellar/miniupnpc/lib/ -lminiupnpc
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/miniupnpc/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/miniupnpc/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/miniupnpc/lib/release/libminiupnpc.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/miniupnpc/lib/debug/libminiupnpc.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/miniupnpc/lib/release/miniupnpc.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/miniupnpc/lib/debug/miniupnpc.lib
+else:unix: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/miniupnpc/lib/libminiupnpc.a
+
+macx: LIBS += -L$$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/ -lboost_system
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/include
+
+macx: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/boost@1.55/1.55.0_1/lib/libboost_system.a
+
+macx: LIBS += -L$$PWD/../../../../usr/local/Cellar/miniupnpc/lib/ -lminiupnpc
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/miniupnpc/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/miniupnpc/include
+
+macx: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/miniupnpc/lib/libminiupnpc.a

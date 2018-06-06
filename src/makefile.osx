@@ -87,7 +87,7 @@ ifdef RELEASE
 CFLAGS = -mmacosx-version-min=10.12 -O3
 CXXFLAGS = -mmacosx-version-min=10.12 -O3
 else
-DEBUGFLAGS = -g
+DEBUGFLAGS = -g -v
 endif
 
 # ppc doesn't work because we don't support big-endian

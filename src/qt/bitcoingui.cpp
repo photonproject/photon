@@ -406,16 +406,16 @@ void BitcoinGUI::createTrayIconMenu()
 #endif
 }
 
-#ifndef Q_OS_MAC
-void BitcoinGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
-{
-    if(reason == QSystemTrayIcon::Trigger)
-    {
+//#ifndef Q_OS_MAC
+//void BitcoinGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
+//{
+  //  if(reason == QSystemTrayIcon::Trigger)
+    //{
         // Click on system tray icon triggers show/hide of the main window
-        toggleHideAction->trigger();
-    }
-}
-#endif
+      //  toggleHideAction->trigger();
+    //}
+//}
+//#endif
 
 void BitcoinGUI::saveWindowGeometry()
 {
