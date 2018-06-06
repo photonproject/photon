@@ -54,8 +54,6 @@ p2pool support for the blake256 algorithm Blake Coin and the merged child coins
 
 A power pool merged mining setup to merge mine all the recognized members of the blake256 family
 
-An upgraded gpu miner for blake256 with strantum support (possibly based on a newer version of cg miner or sg miner)
-
 A graphic user interface in open source code (apart from the qt client) for 'decoding' information in the blockchain.
 
 A graphic user interface in open source code to allow easier writing of documents or other information and include it in a block as a spent transaction to multiple base 58 addresses  (the manual method is cumbersome)
