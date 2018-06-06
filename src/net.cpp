@@ -1209,7 +1209,7 @@ static const char *strMainNetDNSSeed[][2] = {
 static const char *strTestNetDNSSeed[][2] = {
     {"photon.info", "photon.info"},
 	{"photon.org", "server1.photon.org"},
-	{"photon.com", "photon.com"},
+	{"photoncc.com", "photoncc.com"},
 	{NULL, NULL}
 };
 
@@ -1477,10 +1477,10 @@ void ThreadOpenConnections()
 void ThreadOpenAddedConnections()
 {
 	mapMultiArgs["-addnode"].push_back("blakecoin.org");
+	mapMultiArgs["-addnode"].push_back("blakecrypto.com");
 	mapMultiArgs["-addnode"].push_back("eu3.blakecoin.com");
-	mapMultiArgs["-addnode"].push_back("ny2.blakecoin.com");
-	mapMultiArgs["-addnode"].push_back("la1.blakecoin.com");
-	mapMultiArgs["-addnode"].push_back("cg1.blakecoin.com");
+	mapMultiArgs["-addnode"].push_back("at1.blakecoin.com");
+	mapMultiArgs["-addnode"].push_back("la1.blakecoin.com");	
     {
         LOCK(cs_vAddedNodes);
         vAddedNodes = mapMultiArgs["-addnode"];
