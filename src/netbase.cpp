@@ -675,11 +675,11 @@ bool CNetAddr::IsTor() const
 
 bool CNetAddr::IsLocal() const
 {
-    // IPv4 looperback
+    // IPv4 loopback
    if (IsIPv4() && (GetByte(3) == 127 || GetByte(3) == 0))
        return true;
 
-   // IPv6 looperback (::1/128)
+   // IPv6 loopback (::1/128)
    static const unsigned char pchLocal[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
    if (memcmp(ip, pchLocal, 16) == 0)
        return true;
