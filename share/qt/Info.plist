@@ -24,7 +24,7 @@
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
-            <string>com.photoncc.Photon-Qt</string>
+            <string>com.photoncc.Photon</string>
             <key>CFBundleURLSchemes</key>
             <array>
               <string>Photon</string>
