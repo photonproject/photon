@@ -1448,7 +1448,7 @@ void ThreadOpenConnections()
                 break;
 
             // If we didn't find an appropriate destination after trying 100 addresses fetched from addrman,
-            // stop this looper, and let the outer looper run again (which sleeps, adds seed nodes, recalculates
+            // stop this loop, and let the outer loop run again (which sleeps, adds seed nodes, recalculates
             // already-connected network ranges, ...) before trying new addrman addresses.
             nTries++;
             if (nTries > 100)
