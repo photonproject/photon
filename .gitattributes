@@ -1,3 +1,0 @@
-*.ts linguist-language=c_cpp
-100.00% c_cpp
-src/version.cpp export-subst
