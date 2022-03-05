@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
+// Copyright (c) 2013-2018 The Blakecoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -136,7 +137,7 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer)
 bool RecvLine(SOCKET hSocket, string& strLine)
 {
     strLine = "";
-    looper
+    while (true)
     {
         char c;
         int nBytes = recv(hSocket, &c, 1, 0);
@@ -308,7 +309,7 @@ bool GetMyExternalIP2(const CService& addrConnect, const char* pszGet, const cha
     {
         if (strLine.empty()) // HTTP response is separated from headers by blank line
         {
-            looper
+            while (true)
             {
                 if (!RecvLine(hSocket, strLine))
                 {
@@ -751,7 +752,7 @@ static list<CNode*> vNodesDisconnected;
 void ThreadSocketHandler()
 {
     unsigned int nPrevNodeCount = 0;
-    looper
+    while (true)
     {
         //
         // Disconnect nodes
@@ -1119,7 +1120,7 @@ void ThreadMapPort()
         string strDesc = "Bitcoin " + FormatFullVersion();
 
         try {
-            looper {
+            while (true) {
 #ifndef UPNPDISCOVER_SUCCESS
                 /* miniupnpc 1.5 */
                 r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
@@ -1211,9 +1212,6 @@ static const char *strMainNetDNSSeed[][2] = {
 };
 
 static const char *strTestNetDNSSeed[][2] = {
-    {"photon.info", "photon.info"},
-	{"photon.org", "server1.photon.org"},
-	{"photoncc.com", "photoncc.com"},
 	{NULL, NULL}
 };
 
@@ -1373,14 +1371,14 @@ void ThreadOpenConnections()
     // Connect to specific addresses
     if (mapArgs.count("-connect") && mapMultiArgs["-connect"].size() > 0)
     {
-        for (int64 nlooper = 0;; nlooper++)
+        for (int64 nLoop = 0;; nLoop++)
         {
             ProcessOneShot();
             BOOST_FOREACH(string strAddr, mapMultiArgs["-connect"])
             {
                 CAddress addr;
                 OpenNetworkConnection(addr, NULL, strAddr.c_str());
-                for (int i = 0; i < 10 && i < nlooper; i++)
+                for (int i = 0; i < 10 && i < nLoop; i++)
                 {
                     MilliSleep(500);
                 }
@@ -1391,7 +1389,7 @@ void ThreadOpenConnections()
 
     // Initiate network connections
     int64 nStart = GetTime();
-    looper
+    while (true)
     {
         ProcessOneShot();
 
@@ -1442,7 +1440,7 @@ void ThreadOpenConnections()
         int64 nANow = GetAdjustedTime();
 
         int nTries = 0;
-        looper
+        while (true)
         {
             // use an nUnkBias between 10 (no outgoing connections) and 90 (8 outgoing connections)
             CAddress addr = addrman.Select(10 + min(nOutbound,8)*10);
@@ -1481,10 +1479,9 @@ void ThreadOpenConnections()
 void ThreadOpenAddedConnections()
 {
 	mapMultiArgs["-addnode"].push_back("blakecoin.org");
-	mapMultiArgs["-addnode"].push_back("blakecrypto.com");
 	mapMultiArgs["-addnode"].push_back("eu3.blakecoin.com");
+	mapMultiArgs["-addnode"].push_back("la1.blakecoin.com");
 	mapMultiArgs["-addnode"].push_back("at1.blakecoin.com");
-	mapMultiArgs["-addnode"].push_back("la1.blakecoin.com");	
     {
         LOCK(cs_vAddedNodes);
         vAddedNodes = mapMultiArgs["-addnode"];
@@ -1894,7 +1891,7 @@ void StartNode(boost::thread_group& threadGroup)
     threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
 
     // Dump network addresses
-    threadGroup.create_thread(boost::bind(&looperForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
+    threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
 }
 
 bool StopNode()

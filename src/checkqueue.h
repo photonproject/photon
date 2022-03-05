@@ -58,7 +58,7 @@ private:
     unsigned int nBatchSize;
 
     // Internal function that does bulk of the verification work.
-    bool loop(bool fMaster = false) {
+    bool Loop(bool fMaster = false) {
         boost::condition_variable &cond = fMaster ? condMaster : condWorker;
         std::vector<T> vChecks;
         vChecks.reserve(nBatchSize);
@@ -124,12 +124,12 @@ public:
 
     // Worker thread
     void Thread() {
-        loop();
+        Loop();
     }
 
     // Wait until execution finishes, and return whether all evaluations where succesful.
     bool Wait() {
-        return loop(true);
+        return Loop(true);
     }
 
     // Add a batch of checks to the queue

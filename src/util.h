@@ -37,7 +37,6 @@ typedef unsigned long long  uint64;
 static const int64 COIN = 100000000;
 static const int64 CENT = 1000000;
 
-#define looper                for (;;)
 #define BEGIN(a)            ((char*)&(a))
 #define END(a)              ((char*)&((&(a))[1]))
 #define UBEGIN(a)           ((unsigned char*)&(a))
@@ -556,11 +555,11 @@ inline uint32_t ByteReverse(uint32_t value)
 // Standard wrapper for do-something-forever thread functions.
 // "Forever" really means until the thread is interrupted.
 // Use it like:
-//   new boost::thread(boost::bind(&looperForever<void (*)()>, "dumpaddr", &DumpAddresses, 10000));
+//   new boost::thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, 10000));
 // or maybe:
 //    boost::function<void()> f = boost::bind(&FunctionWithArg, argument);
-//    threadGroup.create_thread(boost::bind(&looperForever<boost::function<void()> >, "nothing", f, milliseconds));
-template <typename Callable> void looperForever(const char* name,  Callable func, int64 msecs)
+//    threadGroup.create_thread(boost::bind(&LoopForever<boost::function<void()> >, "nothing", f, milliseconds));
+template <typename Callable> void LoopForever(const char* name,  Callable func, int64 msecs)
 {
     std::string s = strprintf("photon-%s", name);
     RenameThread(s.c_str());
