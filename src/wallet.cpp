@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
-// Copyright (c) 2013-2015 The Blakecoin developers
-// Copyright (c) 2013-2015 The Photon developers
+// Copyright (c) 2013-2022 The Blakecoin developers
+// Copyright (c) 2013-2022 The Photon developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
