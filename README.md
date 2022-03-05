@@ -27,9 +27,12 @@ That is 90 Billion Photons. Difficulty retargets every 20 blocks with a target o
 Up to block 3500 the max adjustment is 15% up each retarget.
 After block 3500 the max adjustment is 3% up each retarget.  
 
-Ubuntu 12.04 dependancies that are used on the Linux build machine:
+Ubuntu 16.04-20.04 dependancies that are used on the Linux build machine:
 
-git-core build-essential libssl-dev libboost-all-dev libdb5.1-dev libdb5.1++-dev libgtk2.0-dev libminiupnpc-dev qt4-qmake mingw32 synaptic qt-sdk qt4-dev-tools libqt4-dev libqt4-core libqt4-gui libdb++-dev
+software-properties-common wget git curl build-essential libssl-dev libboost-all-dev libminiupnpc-dev libdb4.8-dev libdb4.8++-dev
+
+Ubuntu 16.04 alt boost changes in bitcoinrpc.cpp uncomment/comment
+Ubuntu 20.04 add the bitcoin ppa for bionic tested working fine
 
 License
 
