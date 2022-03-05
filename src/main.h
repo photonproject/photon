@@ -1804,7 +1804,10 @@ public:
         return (pnext || this == pindexBest);
     }
 
-    enum { nMedianTimeSpan=11 };
+    enum 
+    { 
+      nMedianTimeSpan=11,
+    };
 
     int64 GetMedianTimePast() const
     {

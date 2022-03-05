@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#include "util/testharness.h"
+//#include "util/testharness.h"
 
 #include <string>
 #include <stdlib.h>
@@ -38,7 +38,7 @@ int RunAllTests() {
 
   int num = 0;
   if (tests != NULL) {
-    for (int i = 0; i < tests->size(); i++) {
+    for (size_t i = 0; i < tests->size(); i++) {
       const Test& t = (*tests)[i];
       if (matcher != NULL) {
         std::string name = t.base;

@@ -29,7 +29,7 @@ class TestHashFilter : public FilterPolicy {
 
   virtual bool KeyMayMatch(const Slice& key, const Slice& filter) const {
     uint32_t h = Hash(key.data(), key.size(), 1);
-    for (int i = 0; i + 4 <= filter.size(); i += 4) {
+    for (size_t i = 0; i + 4 <= filter.size(); i += 4) {
       if (h == DecodeFixed32(filter.data() + i)) {
         return true;
       }
@@ -123,6 +123,6 @@ TEST(FilterBlockTest, MultiChunk) {
 
 }  // namespace leveldb
 
-int main(int argc, char** argv) {
-  return leveldb::test::RunAllTests();
-}
+//int main(int argc, char** argv) {
+//  return leveldb::test::RunAllTests();
+//}

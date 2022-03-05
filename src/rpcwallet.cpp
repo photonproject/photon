@@ -406,8 +406,8 @@ Value signmessage(const Array& params, bool fHelp)
     ss << strMessageMagic;
     ss << strMessage;
 
-    vector<unsigned char> vchSig;
-    if (!key.SignCompact(ss.GetHash(), vchSig))
+std::vector<unsigned char> vchSig;
+if (!key.SignCompact(Hashblake(ss.begin(), ss.end()), vchSig))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Sign failed");
 
     return EncodeBase64(&vchSig[0], vchSig.size());
@@ -443,7 +443,7 @@ Value verifymessage(const Array& params, bool fHelp)
     ss << strMessage;
 
     CKey key;
-    if (!key.SetCompactSignature(ss.GetHash(), vchSig))
+    if (!key.SetCompactSignature(Hashblake(ss.begin(), ss.end()), vchSig))
         return false;
 
     return (key.GetPubKey().GetID() == keyID);
