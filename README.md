@@ -32,6 +32,7 @@ Ubuntu 16.04-20.04 dependancies that are used on the Linux build machine:
 software-properties-common wget git curl build-essential libssl-dev libboost-all-dev libminiupnpc-dev libdb4.8-dev libdb4.8++-dev
 
 Ubuntu 16.04 alt boost changes in bitcoinrpc.cpp uncomment/comment
+
 Ubuntu 20.04 add the bitcoin ppa for bionic tested working fine
 
 License
