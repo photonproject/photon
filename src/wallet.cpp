@@ -1270,8 +1270,11 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend,
                     // add the dust to the fee.
                     if (newTxOut.IsDust())
                     {
-                        nFeeRet += nChange;
-                        reservekey.ReturnKey();
+                        // Insert change txn at random position:
+                        vector<CTxOut>::iterator position = wtxNew.vout.begin()+GetRandInt(wtxNew.vout.size()+1);
+                        wtxNew.vout.insert(position, newTxOut);
+                        // nFeeRet += nChange;
+                        // reservekey.ReturnKey();
                     }
                     else
                     {
