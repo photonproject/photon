@@ -443,7 +443,7 @@ Value verifymessage(const Array& params, bool fHelp)
     ss << strMessage;
 
     CKey key;
-    if (!key.SetCompactSignature(Hashblake(ss.begin(), ss.end()), vchSig))
+    if (!key.SetCompactSignature(ss.GetHash(), vchSig))
         return false;
 
     return (key.GetPubKey().GetID() == keyID);
