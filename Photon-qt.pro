@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = photon-qt
 macx:TARGET = "Photon-Qt"
-VERSION = 0.8.9.6
+VERSION = 0.8.9.8
 INCLUDEPATH += src src/json src/qt
 QT += core gui network
 #DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN __NO_SYSTEM_INCLUDES
@@ -11,16 +11,14 @@ CONFIG += no_include_pwd
 CONFIG += thread
 CONFIG += static 
 
-# 
+USE_UPNP:=1
+
+# for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt
 # for boost thread win32 with _win32 sufix
 # use: BOOST_THREAD_LIB_SUFFIX=_win32-...
 # or when linking against a specific BerkelyDB version: BDB_LIB_SUFFIX=-4.8
-#
-#
-#
-#   
-#
+
 # Dependency library locations can be customized with:
 #    BOOST_INCLUDE_PATH, BOOST_LIB_PATH, BDB_INCLUDE_PATH,
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
@@ -30,21 +28,20 @@ CONFIG += static
 windows:LIBS += -lshlwapi
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
-#windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
-LIBS += -lboost_system-mgw49-mt-s-1_55 -lboost_filesystem-mgw49-mt-s-1_55 -lboost_program_options-mgw49-mt-s-1_55 -lboost_thread-mgw49-mt-s-1_55
-#BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
-#BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
-#BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
-#BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
-#BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
-#OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2n/include
-#OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2n
-#MINIUPNPC_LIB_SUFFIX=-miniupnpc
-#MINIUPNPC_INCLUDE_PATH=C:/deps/miniupnpc
-#MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
-#QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
-#QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
-#LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.20
+LIBS += -lboost_system-mgw54-mt-s-x32-1_71 -lboost_filesystem-mgw54-mt-s-x32-1_71 -lboost_program_options-mgw54-mt-s-x32-1_71 -lboost_thread-mgw54-mt-s-x32-1_71
+BOOST_LIB_SUFFIX=-mgw54-mt-s-x32-1_71
+BOOST_INCLUDE_PATH=C:/deps/boost_1_71_0
+BOOST_LIB_PATH=C:/deps/boost_1_71_0/stage/lib
+BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
+BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
+OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.1.1i/include
+OPENSSL_LIB_PATH=C:/deps/openssl-1.1.1i
+MINIUPNPC_LIB_SUFFIX=-miniupnpc
+MINIUPNPC_INCLUDE_PATH=c:/deps/miniupnpc-2.2.1
+MINIUPNPC_LIB_PATH=c:/deps/miniupnpc-2.2.1
+QRENCODE_INCLUDE_PATH=C:/deps/qrencode-4.1.1
+QRENCODE_LIB_PATH=C:/deps/qrencode-4.1.1/.libs
+LIBPNG_INCLUDE_PATH=C:/deps/libpng-1.6.37
 # End of Windows Paths
 
 
@@ -67,13 +64,18 @@ contains(RELEASE, 1) {
 
 !win32 {
     # for extra security against potential buffer overflows: enable GCCs Stack Smashing Protection
+    #QMAKE_CXXFLAGS *= -fstack-protector-all -std=gnu++0x
     QMAKE_CXXFLAGS *= -fstack-protector-all
     QMAKE_LFLAGS *= -fstack-protector-all
+    #QMAKE_CXXFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
+    #QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
     # Exclude on Windows cross compile with MinGW 4.2.x, as it will result in a non-working executable!
     # This can be enabled for Windows, when we switch to MinGW >= 4.4.x.
 }
 # for extra security (see: https://wiki.debian.org/Hardening): this flag is GCC compiler-specific
-QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+#QMAKE_CXXFLAGS *= -D_FORTIFY_SOURCE=2
+QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -std=gnu++0x
+#QMAKE_CXXFLAGS += -std=c++11
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
 #win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
@@ -391,7 +393,7 @@ OTHER_FILES += README.md \
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    win32:BOOST_LIB_SUFFIX = -mgw49-mt-s-1_55
+    win32:BOOST_LIB_SUFFIX = -mgw54-mt-s-x32-1_71
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
